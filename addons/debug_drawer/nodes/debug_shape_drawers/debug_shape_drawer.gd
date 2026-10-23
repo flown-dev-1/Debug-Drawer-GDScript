@@ -1,6 +1,9 @@
 @tool
 class_name DebugShapeDrawer extends Node3D
 
+#region constants
+const TOO_MANY_SHAPES_WARNING: String = "[Debug Drawer] Attempted to draw too many shapes in one frame. The limit is set to %d, try increasing it in addons/debug_drawer/max_shape_instances"
+
 #region identity
 var _max_shape_instances: int
 
@@ -27,3 +30,6 @@ func _create_multimesh(array_mesh: ArrayMesh) -> MultiMesh:
 	multimesh.visible_instance_count = 0
 	
 	return multimesh
+
+func _push_too_many_shapes_warning() -> void:
+	push_warning(TOO_MANY_SHAPES_WARNING % _max_shape_instances)

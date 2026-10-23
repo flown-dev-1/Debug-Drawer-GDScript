@@ -25,6 +25,9 @@ func _enter_tree() -> void:
 
 #region public_functions
 func draw(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color) -> void:
+	if _lines_multimesh.visible_instance_count >= _lines_multimesh.instance_count:
+		_push_too_many_shapes_warning()
+	
 	var instance_transform := Transform3D(Basis.from_scale(size), min_point)
 	
 	if line_color.a > 0.0:

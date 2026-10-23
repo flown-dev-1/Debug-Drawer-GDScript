@@ -20,6 +20,9 @@ func draw(start: Vector3, end: Vector3, line_color: Color) -> void:
 	if line_color.a <= 0.0:
 		return
 	
+	if _lines_multimesh.visible_instance_count >= _lines_multimesh.instance_count:
+		_push_too_many_shapes_warning()
+	
 	var offset := end - start
 	var instance_transform := Transform3D(Basis(offset, Vector3.ZERO, Vector3.ZERO), start)
 	
