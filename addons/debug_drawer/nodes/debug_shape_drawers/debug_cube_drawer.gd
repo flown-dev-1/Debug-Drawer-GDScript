@@ -13,13 +13,15 @@ var _fill_multi_mesh_instance: MultiMeshInstance3D = null
 func _enter_tree() -> void:
 	super._enter_tree()
 	
-	_lines_array_mesh = _create_lines_array_mesh()
-	_lines_multimesh = _create_multimesh(_lines_array_mesh)
-	_lines_multi_mesh_instance = _create_multi_mesh_instance(_lines_multimesh)
+	if _lines_array_mesh == null:
+		_lines_array_mesh = _create_lines_array_mesh()
+		_lines_multimesh = _create_multimesh(_lines_array_mesh)
+		_lines_multi_mesh_instance = _create_multi_mesh_instance(_lines_multimesh)
 	
-	_fill_array_mesh = _create_fill_array_mesh()
-	_fill_multimesh = _create_multimesh(_fill_array_mesh)
-	_fill_multi_mesh_instance = _create_multi_mesh_instance(_fill_multimesh)
+	if _fill_array_mesh == null:
+		_fill_array_mesh = _create_fill_array_mesh()
+		_fill_multimesh = _create_multimesh(_fill_array_mesh)
+		_fill_multi_mesh_instance = _create_multi_mesh_instance(_fill_multimesh)
 
 #region public_functions
 func draw(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color) -> void:
@@ -42,6 +44,7 @@ func reset() -> void:
 	_lines_multimesh.visible_instance_count = 0
 	_fill_multimesh.visible_instance_count = 0
 
+#region private_functions
 func _create_lines_array_mesh() -> ArrayMesh:
 	var array_mesh = ArrayMesh.new()
 	

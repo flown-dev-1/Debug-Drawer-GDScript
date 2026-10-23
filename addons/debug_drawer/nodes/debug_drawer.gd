@@ -6,8 +6,9 @@ var _cube_drawer: DebugCubeDrawer = null
 
 #region node_events
 func _enter_tree() -> void:
-	_cube_drawer = DebugCubeDrawer.new()
-	add_child(_cube_drawer, false, Node.INTERNAL_MODE_FRONT)
+	if _cube_drawer == null:
+		_cube_drawer = DebugCubeDrawer.new()
+		add_child(_cube_drawer, false, Node.INTERNAL_MODE_FRONT)
 	
 	process_priority = -1000
 
