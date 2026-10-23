@@ -1,9 +1,6 @@
 @tool
 class_name DebugCubeDrawer extends DebugShapeDrawer
 
-#region identity
-var _max_shape_instances: int
-
 #region references
 var _lines_array_mesh: ArrayMesh = null
 var _lines_multimesh: MultiMesh = null
@@ -14,14 +11,14 @@ var _fill_multi_mesh_instance: MultiMeshInstance3D = null
 
 #region node_events
 func _enter_tree() -> void:
-	_max_shape_instances = ProjectSettings.get_setting("addons/debug_drawer/max_shape_instances")
+	super._enter_tree()
 	
 	_lines_array_mesh = _create_lines_array_mesh()
-	_lines_multimesh = _create_multimesh(_lines_array_mesh, _max_shape_instances)
+	_lines_multimesh = _create_multimesh(_lines_array_mesh)
 	_lines_multi_mesh_instance = _create_multi_mesh_instance(_lines_multimesh)
 	
 	_fill_array_mesh = _create_fill_array_mesh()
-	_fill_multimesh = _create_multimesh(_fill_array_mesh, _max_shape_instances)
+	_fill_multimesh = _create_multimesh(_fill_array_mesh)
 	_fill_multi_mesh_instance = _create_multi_mesh_instance(_fill_multimesh)
 
 #region public_functions

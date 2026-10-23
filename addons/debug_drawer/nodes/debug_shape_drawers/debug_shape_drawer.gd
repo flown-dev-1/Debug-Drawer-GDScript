@@ -1,6 +1,13 @@
 @tool
 class_name DebugShapeDrawer extends Node3D
 
+#region identity
+var _max_shape_instances: int
+
+#region node_events
+func _enter_tree() -> void:
+	_max_shape_instances = ProjectSettings.get_setting("addons/debug_drawer/max_shape_instances")
+
 #region private_functions
 func _create_multi_mesh_instance(multimesh: MultiMesh) -> MultiMeshInstance3D:
 	var multi_mesh_instance = MultiMeshInstance3D.new()
@@ -10,13 +17,13 @@ func _create_multi_mesh_instance(multimesh: MultiMesh) -> MultiMeshInstance3D:
 	
 	return multi_mesh_instance
 
-func _create_multimesh(array_mesh: ArrayMesh, max_shape_instances: int) -> MultiMesh:
+func _create_multimesh(array_mesh: ArrayMesh) -> MultiMesh:
 	var multimesh = MultiMesh.new()
 	
 	multimesh.mesh = array_mesh
 	multimesh.transform_format = MultiMesh.TRANSFORM_3D
 	multimesh.use_colors = true
-	multimesh.instance_count = max_shape_instances
+	multimesh.instance_count = _max_shape_instances
 	multimesh.visible_instance_count = 0
 	
 	return multimesh
