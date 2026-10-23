@@ -25,7 +25,6 @@ func _enter_tree() -> void:
 
 #region public_functions
 func draw(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color) -> void:
-	
 	var instance_transform := Transform3D(Basis.from_scale(size), min_point)
 	
 	if line_color.a > 0.0:

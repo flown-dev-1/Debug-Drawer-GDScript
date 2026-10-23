@@ -1,11 +1,11 @@
 [gd_scene format=3 uid="uid://bnkdu8rob06kx"]
 
 [ext_resource type="Script" uid="uid://b5762taikh7dm" path="res://addons/debug_drawer/nodes/debug_drawer.gd" id="1_0wfyh"]
-[ext_resource type="Script" uid="uid://6bkc1xt2quhx" path="res://scripts/test_cube_drawer.gd" id="1_o5qli"]
+[ext_resource type="Script" uid="uid://6bkc1xt2quhx" path="res://scripts/test_drawer.gd" id="1_o5qli"]
 
 [node name="Main" type="Node3D" unique_id=866237705]
 
-[node name="DebugDrawer" type="Node3D" parent="." unique_id=1523052718]
+[node name="DebugDrawer" type="Node3D" parent="." unique_id=2126638569]
 process_priority = -1000
 script = ExtResource("1_0wfyh")
 metadata/_custom_type_script = "uid://b5762taikh7dm"
