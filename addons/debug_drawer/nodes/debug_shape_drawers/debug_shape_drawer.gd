@@ -1,3 +1,4 @@
+@tool
 class_name DebugShapeDrawer extends Node3D
 
 #region private_functions

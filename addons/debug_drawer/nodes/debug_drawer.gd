@@ -1,3 +1,4 @@
+@tool
 class_name DebugDrawer extends Node3D
 
 #region references

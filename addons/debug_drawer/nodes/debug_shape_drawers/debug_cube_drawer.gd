@@ -1,3 +1,4 @@
+@tool
 class_name DebugCubeDrawer extends DebugShapeDrawer
 
 #region identity
