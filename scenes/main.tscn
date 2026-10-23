@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://bnkdu8rob06kx"]
+
+[ext_resource type="Script" uid="uid://b5762taikh7dm" path="res://addons/debug_drawer/nodes/debug_drawer.gd" id="1_0wfyh"]
+[ext_resource type="Script" uid="uid://6bkc1xt2quhx" path="res://scripts/test_cube_drawer.gd" id="1_o5qli"]
+
+[node name="Main" type="Node3D" unique_id=866237705]
+
+[node name="DebugDrawer" type="Node3D" parent="." unique_id=1075830685]
+script = ExtResource("1_0wfyh")
+metadata/_custom_type_script = "uid://b5762taikh7dm"
+
+[node name="Tests" type="Node" parent="." unique_id=1504777771 node_paths=PackedStringArray("debug_drawer")]
+script = ExtResource("1_o5qli")
+debug_drawer = NodePath("../DebugDrawer")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1286949761]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.2724586)
