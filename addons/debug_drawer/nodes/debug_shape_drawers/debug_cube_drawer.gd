@@ -24,8 +24,9 @@ func _enter_tree() -> void:
 	_fill_multi_mesh_instance = _create_multi_mesh_instance(_fill_multimesh)
 
 #region public_functions
-func draw(min_point: Vector3, max_point: Vector3, line_color: Color, fill_color: Color) -> void:
-	var instance_transform := Transform3D(Basis.from_scale(max_point - min_point), min_point)
+func draw(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color) -> void:
+	
+	var instance_transform := Transform3D(Basis.from_scale(size), min_point)
 	
 	if line_color.a > 0.0:
 		_lines_multimesh.set_instance_transform(_lines_multimesh.visible_instance_count, instance_transform)
@@ -133,6 +134,7 @@ func _create_fill_array_mesh() -> ArrayMesh:
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	material.vertex_color_use_as_albedo = true
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	
 	array_mesh.surface_set_material(0, material)
 	

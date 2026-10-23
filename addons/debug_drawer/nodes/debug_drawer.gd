@@ -14,5 +14,5 @@ func _process(_delta: float) -> void:
 	_cube_drawer.reset()
 
 #region public_functions
-func draw_cube(min_point: Vector3, max_point: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
-	_cube_drawer.draw(min_point, max_point, line_color, fill_color)
+func draw_cube(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
+	_cube_drawer.draw(min_point, size, line_color, fill_color)
