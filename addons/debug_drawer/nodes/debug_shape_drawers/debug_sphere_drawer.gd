@@ -11,12 +11,12 @@ enum SphereResolution {
 }
 
 #region references
-var _lines_material: Dictionary[int, StandardMaterial3D] = {}
+var _lines_material: StandardMaterial3D = null
 var _lines_array_meshes: Dictionary[int, ArrayMesh] = {}
 var _lines_multimeshes: Dictionary[int, MultiMesh] = {}
 var _lines_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
 
-var _fill_material: Dictionary[int, StandardMaterial3D] = {}
+var _fill_material: StandardMaterial3D = null
 var _fill_array_meshes: Dictionary[int, ArrayMesh] = {}
 var _fill_multimeshes: Dictionary[int, MultiMesh] = {}
 var _fill_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
@@ -63,29 +63,25 @@ func reset() -> void:
 #region private_functions
 func _ensure_lines_resolution(resolution: int) -> void:
 	if !_lines_array_meshes.has(resolution):
-		var lines_material := _create_lines_material()
-		var lines_array_mesh := _create_lines_array_mesh(lines_material, resolution)
+		var lines_array_mesh := _create_lines_array_mesh(resolution)
 		var lines_multimesh := _create_multimesh(lines_array_mesh)
 		var lines_mesh_instance := _create_multi_mesh_instance(lines_multimesh)
 		
-		_lines_material[resolution] = lines_material
 		_lines_array_meshes[resolution] = lines_array_mesh
 		_lines_multimeshes[resolution] = lines_multimesh
 		_lines_multi_mesh_instances[resolution] = lines_mesh_instance
 
 func _ensure_fill_resolution(resolution: int) -> void:
 	if !_fill_array_meshes.has(resolution):
-		var fill_material := _create_fill_material()
-		var fill_array_mesh := _create_fill_array_mesh(fill_material, resolution)
+		var fill_array_mesh := _create_fill_array_mesh(resolution)
 		var fill_multimesh := _create_multimesh(fill_array_mesh)
 		var fill_mesh_instance := _create_multi_mesh_instance(fill_multimesh)
 		
-		_fill_material[resolution] = fill_material
 		_fill_array_meshes[resolution] = fill_array_mesh
 		_fill_multimeshes[resolution] = fill_multimesh
 		_fill_multi_mesh_instances[resolution] = fill_mesh_instance
 
-func _create_lines_array_mesh(material: StandardMaterial3D, resolution: int) -> ArrayMesh:
+func _create_lines_array_mesh(resolution: int) -> ArrayMesh:
 	var mesh_data := _create_ico_sphere(resolution)
 	var line_mesh_data := MeshData.new(mesh_data.vertices, PackedInt32Array())
 	
@@ -107,11 +103,15 @@ func _create_lines_array_mesh(material: StandardMaterial3D, resolution: int) -> 
 	arrays[Mesh.ARRAY_INDEX] = line_mesh_data.indices
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, arrays)
-	array_mesh.surface_set_material(0, material)
+	
+	if _lines_material == null:
+		_lines_material = _create_lines_material()
+	
+	array_mesh.surface_set_material(0, _lines_material)
 	
 	return array_mesh
 
-func _create_fill_array_mesh(material: StandardMaterial3D, resolution: int) -> ArrayMesh:
+func _create_fill_array_mesh(resolution: int) -> ArrayMesh:
 	var mesh_data := _create_ico_sphere(resolution)
 	
 	var array_mesh := ArrayMesh.new()
@@ -122,59 +122,65 @@ func _create_fill_array_mesh(material: StandardMaterial3D, resolution: int) -> A
 	arrays[Mesh.ARRAY_INDEX] = mesh_data.indices
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
-	array_mesh.surface_set_material(0, material)
+	
+	if _fill_material == null:
+		_fill_material = _create_fill_material()
+	
+	array_mesh.surface_set_material(0, _fill_material)
 	
 	return array_mesh
 
 func _create_ico_sphere(resolution: int) -> MeshData:
-	var mesh_data := MeshData.new(PackedVector3Array(), PackedInt32Array())
-	
-	mesh_data = _add_base_icosahedron(mesh_data)
+	var mesh_data := _create_icosahedron()
 	
 	for subdivision: int in resolution:
 		mesh_data = _subdivide(mesh_data)
 	
 	return mesh_data
 
-func _add_base_icosahedron(mesh_data: MeshData) -> MeshData:
+func _create_icosahedron() -> MeshData:
+	var mesh_data := MeshData.new(PackedVector3Array(), PackedInt32Array())
+	mesh_data.resize_for_vertices(12)
+	mesh_data.resize_for_triangles(20)
+	
 	var phi := (1.0 + sqrt(5.0)) / 2.0
 	
 	var vertices := mesh_data.vertices
 	var indices := mesh_data.indices
 	
-	mesh_data.add_vertex(Vector3(-1.0,  phi,  0.0).normalized())
-	mesh_data.add_vertex(Vector3( 1.0,  phi,  0.0).normalized())
-	mesh_data.add_vertex(Vector3(-1.0, -phi,  0.0).normalized())
-	mesh_data.add_vertex(Vector3( 1.0, -phi,  0.0).normalized())
-	mesh_data.add_vertex(Vector3( 0.0, -1.0,  phi).normalized())
-	mesh_data.add_vertex(Vector3( 0.0,  1.0,  phi).normalized())
-	mesh_data.add_vertex(Vector3( 0.0, -1.0, -phi).normalized())
-	mesh_data.add_vertex(Vector3( 0.0,  1.0, -phi).normalized())
-	mesh_data.add_vertex(Vector3( phi,  0.0, -1.0).normalized())
-	mesh_data.add_vertex(Vector3( phi,  0.0,  1.0).normalized())
-	mesh_data.add_vertex(Vector3(-phi,  0.0, -1.0).normalized())
-	mesh_data.add_vertex(Vector3(-phi,  0.0,  1.0).normalized())
+	mesh_data.set_vertex(0 , Vector3(-1.0,  phi,  0.0).normalized())
+	mesh_data.set_vertex(1 , Vector3( 1.0,  phi,  0.0).normalized())
+	mesh_data.set_vertex(2 , Vector3(-1.0, -phi,  0.0).normalized())
+	mesh_data.set_vertex(3 , Vector3( 1.0, -phi,  0.0).normalized())
+	mesh_data.set_vertex(4 , Vector3( 0.0, -1.0,  phi).normalized())
+	mesh_data.set_vertex(5 , Vector3( 0.0,  1.0,  phi).normalized())
+	mesh_data.set_vertex(6 , Vector3( 0.0, -1.0, -phi).normalized())
+	mesh_data.set_vertex(7 , Vector3( 0.0,  1.0, -phi).normalized())
+	mesh_data.set_vertex(8 , Vector3( phi,  0.0, -1.0).normalized())
+	mesh_data.set_vertex(9 , Vector3( phi,  0.0,  1.0).normalized())
+	mesh_data.set_vertex(10, Vector3(-phi,  0.0, -1.0).normalized())
+	mesh_data.set_vertex(11, Vector3(-phi,  0.0,  1.0).normalized())
 	
-	mesh_data.add_triangle_indices(0 , 11, 5 )
-	mesh_data.add_triangle_indices(0 , 5 , 1 )
-	mesh_data.add_triangle_indices(0 , 1 , 7 )
-	mesh_data.add_triangle_indices(0 , 7 , 10)
-	mesh_data.add_triangle_indices(0 , 10, 11)
-	mesh_data.add_triangle_indices(1 , 5 , 9 )
-	mesh_data.add_triangle_indices(5 , 11, 4 )
-	mesh_data.add_triangle_indices(11, 10, 2 )
-	mesh_data.add_triangle_indices(10, 7 , 6 )
-	mesh_data.add_triangle_indices(7 , 1 , 8 )
-	mesh_data.add_triangle_indices(3 , 9 , 4 )
-	mesh_data.add_triangle_indices(3 , 4 , 2 )
-	mesh_data.add_triangle_indices(3 , 2 , 6 )
-	mesh_data.add_triangle_indices(3 , 6 , 8 )
-	mesh_data.add_triangle_indices(3 , 8 , 9 )
-	mesh_data.add_triangle_indices(4 , 9 , 5 )
-	mesh_data.add_triangle_indices(2 , 4 , 11)
-	mesh_data.add_triangle_indices(6 , 2 , 10)
-	mesh_data.add_triangle_indices(8 , 6 , 7 )
-	mesh_data.add_triangle_indices(9 , 8 , 1 )
+	mesh_data.set_triangle_indices(0 , 0 , 11, 5 )
+	mesh_data.set_triangle_indices(1 , 0 , 5 , 1 )
+	mesh_data.set_triangle_indices(2 , 0 , 1 , 7 )
+	mesh_data.set_triangle_indices(3 , 0 , 7 , 10)
+	mesh_data.set_triangle_indices(4 , 0 , 10, 11)
+	mesh_data.set_triangle_indices(5 , 1 , 5 , 9 )
+	mesh_data.set_triangle_indices(6 , 5 , 11, 4 )
+	mesh_data.set_triangle_indices(7 , 11, 10, 2 )
+	mesh_data.set_triangle_indices(8 , 10, 7 , 6 )
+	mesh_data.set_triangle_indices(9 , 7 , 1 , 8 )
+	mesh_data.set_triangle_indices(10, 3 , 9 , 4 )
+	mesh_data.set_triangle_indices(11, 3 , 4 , 2 )
+	mesh_data.set_triangle_indices(12, 3 , 2 , 6 )
+	mesh_data.set_triangle_indices(13, 3 , 6 , 8 )
+	mesh_data.set_triangle_indices(14, 3 , 8 , 9 )
+	mesh_data.set_triangle_indices(15, 4 , 9 , 5 )
+	mesh_data.set_triangle_indices(16, 2 , 4 , 11)
+	mesh_data.set_triangle_indices(17, 6 , 2 , 10)
+	mesh_data.set_triangle_indices(18, 8 , 6 , 7 )
+	mesh_data.set_triangle_indices(19, 9 , 8 , 1 )
 	
 	return mesh_data
 
@@ -182,12 +188,11 @@ func _subdivide(mesh_data: MeshData) -> MeshData:
 	var vertices := mesh_data.vertices
 	var indices := mesh_data.indices
 	
-	var new_indices := PackedInt32Array()
-	new_indices.resize(indices.size() * 4)
-	
-	var new_mesh_data := MeshData.new(vertices, new_indices)
+	var new_mesh_data := MeshData.new(vertices, PackedInt32Array())
+	new_mesh_data.resize_for_indices(indices.size() * 4)
 	
 	var added_midpoints: Dictionary[int, int] = {}
+	var triangle_index = 0
 	for index in range(0, indices.size(), 3):
 		var a := indices[index + 0]
 		var b := indices[index + 1]
@@ -197,10 +202,12 @@ func _subdivide(mesh_data: MeshData) -> MeshData:
 		var bc := _get_midpoint_index(mesh_data, added_midpoints, b, c)
 		var ca := _get_midpoint_index(mesh_data, added_midpoints, c, a)
 		
-		new_mesh_data.add_triangle_indices(a, ab, ca)
-		new_mesh_data.add_triangle_indices(b, bc, ab)
-		new_mesh_data.add_triangle_indices(c, ca, bc)
-		new_mesh_data.add_triangle_indices(ab, bc, ca)
+		new_mesh_data.set_triangle_indices(triangle_index + 0, a, ab, ca)
+		new_mesh_data.set_triangle_indices(triangle_index + 1, b, bc, ab)
+		new_mesh_data.set_triangle_indices(triangle_index + 2, c, ca, bc)
+		new_mesh_data.set_triangle_indices(triangle_index + 3, ab, bc, ca)
+		
+		triangle_index += 4
 	
 	return new_mesh_data
 

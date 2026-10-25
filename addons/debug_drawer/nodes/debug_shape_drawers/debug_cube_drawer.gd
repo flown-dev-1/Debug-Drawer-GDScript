@@ -5,6 +5,7 @@ class_name DebugCubeDrawer extends DebugShapeDrawer
 var _lines_array_mesh: ArrayMesh = null
 var _lines_multimesh: MultiMesh = null
 var _lines_multi_mesh_instance: MultiMeshInstance3D = null
+
 var _fill_array_mesh: ArrayMesh = null
 var _fill_multimesh: MultiMesh = null
 var _fill_multi_mesh_instance: MultiMeshInstance3D = null
@@ -48,105 +49,93 @@ func reset() -> void:
 
 #region private_functions
 func _create_lines_array_mesh() -> ArrayMesh:
-	var array_mesh = ArrayMesh.new()
+	var mesh_data := _create_lines_cube()
 	
-	var vertices := PackedVector3Array()
-	vertices.resize(8)
-	vertices[0] = Vector3(0.0, 0.0, 0.0)
-	vertices[1] = Vector3(1.0, 0.0, 0.0)
-	vertices[2] = Vector3(0.0, 1.0, 0.0)
-	vertices[3] = Vector3(1.0, 1.0, 0.0)
-	vertices[4] = Vector3(0.0, 0.0, 1.0)
-	vertices[5] = Vector3(1.0, 0.0, 1.0)
-	vertices[6] = Vector3(0.0, 1.0, 1.0)
-	vertices[7] = Vector3(1.0, 1.0, 1.0)
-	
-	var indices := PackedInt32Array()
-	indices.resize(12 * 2)
-	indices[0] = 0
-	indices[1] = 1
-	indices[2] = 0
-	indices[3] = 2
-	indices[4] = 1
-	indices[5] = 3
-	indices[6] = 2
-	indices[7] = 3
-	indices[8] = 4
-	indices[9] = 5
-	indices[10] = 4
-	indices[11] = 6
-	indices[12] = 5
-	indices[13] = 7
-	indices[14] = 6
-	indices[15] = 7
-	indices[16] = 0
-	indices[17] = 4
-	indices[18] = 1
-	indices[19] = 5
-	indices[20] = 2
-	indices[21] = 6
-	indices[22] = 3
-	indices[23] = 7
+	var array_mesh := ArrayMesh.new()
 	
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_INDEX] = indices
+	arrays[Mesh.ARRAY_VERTEX] = mesh_data.vertices
+	arrays[Mesh.ARRAY_INDEX] = mesh_data.indices
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, arrays)
 	
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.vertex_color_use_as_albedo = true
+	var material := _create_lines_material()
 	
 	array_mesh.surface_set_material(0, material)
 	
 	return array_mesh
 
 func _create_fill_array_mesh() -> ArrayMesh:
-	var array_mesh = ArrayMesh.new()
+	var mesh_data := _create_fill_cube()
 	
-	var vertices := PackedVector3Array()
-	vertices.resize(8)
-	vertices[0] = Vector3(0.0, 0.0, 0.0)
-	vertices[1] = Vector3(1.0, 0.0, 0.0)
-	vertices[2] = Vector3(0.0, 1.0, 0.0)
-	vertices[3] = Vector3(1.0, 1.0, 0.0)
-	vertices[4] = Vector3(0.0, 0.0, 1.0)
-	vertices[5] = Vector3(1.0, 0.0, 1.0)
-	vertices[6] = Vector3(0.0, 1.0, 1.0)
-	vertices[7] = Vector3(1.0, 1.0, 1.0)
-	
-	var indices := PackedInt32Array()
-	indices.resize(6 * 2 * 3)
-	_create_fill_face(indices, 0 * 6, 0, 1, 2, 3)
-	_create_fill_face(indices, 1 * 6, 5, 4, 7, 6)
-	_create_fill_face(indices, 2 * 6, 4, 0, 6, 2)
-	_create_fill_face(indices, 3 * 6, 1, 5, 3, 7)
-	_create_fill_face(indices, 4 * 6, 2, 3, 6, 7)
-	_create_fill_face(indices, 5 * 6, 1, 0, 5, 4)
+	var array_mesh := ArrayMesh.new()
 	
 	var arrays := []
 	arrays.resize(Mesh.ARRAY_MAX)
-	arrays[Mesh.ARRAY_VERTEX] = vertices
-	arrays[Mesh.ARRAY_INDEX] = indices
+	arrays[Mesh.ARRAY_VERTEX] = mesh_data.vertices
+	arrays[Mesh.ARRAY_INDEX] = mesh_data.indices
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	
-	var material := StandardMaterial3D.new()
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	material.vertex_color_use_as_albedo = true
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	var material := _create_fill_material()
 	
 	array_mesh.surface_set_material(0, material)
 	
 	return array_mesh
 
-func _create_fill_face(indices: PackedInt32Array, offset: int, bottom_left: int, bottom_right: int, top_left: int, top_right: int) -> void:
-	indices[offset + 0] = bottom_left
-	indices[offset + 1] = bottom_right
-	indices[offset + 2] = top_right
-	indices[offset + 3] = bottom_left
-	indices[offset + 4] = top_right
-	indices[offset + 5] = top_left
+func _create_lines_cube() -> MeshData:
+	var mesh_data := MeshData.new(PackedVector3Array(), PackedInt32Array())
+	mesh_data.resize_for_vertices(8)
+	mesh_data.resize_for_lines(12)
+	
+	mesh_data.set_vertex(0, Vector3(0.0, 0.0, 0.0))
+	mesh_data.set_vertex(1, Vector3(1.0, 0.0, 0.0))
+	mesh_data.set_vertex(2, Vector3(0.0, 1.0, 0.0))
+	mesh_data.set_vertex(3, Vector3(1.0, 1.0, 0.0))
+	mesh_data.set_vertex(4, Vector3(0.0, 0.0, 1.0))
+	mesh_data.set_vertex(5, Vector3(1.0, 0.0, 1.0))
+	mesh_data.set_vertex(6, Vector3(0.0, 1.0, 1.0))
+	mesh_data.set_vertex(7, Vector3(1.0, 1.0, 1.0))
+	
+	mesh_data.set_line_indices(0 , 0, 1)
+	mesh_data.set_line_indices(1 , 0, 2)
+	mesh_data.set_line_indices(2 , 1, 3)
+	mesh_data.set_line_indices(3 , 2, 3)
+	mesh_data.set_line_indices(4 , 4, 5)
+	mesh_data.set_line_indices(5 , 4, 6)
+	mesh_data.set_line_indices(6 , 5, 7)
+	mesh_data.set_line_indices(7 , 6, 7)
+	mesh_data.set_line_indices(8 , 0, 4)
+	mesh_data.set_line_indices(9 , 1, 5)
+	mesh_data.set_line_indices(10, 2, 6)
+	mesh_data.set_line_indices(11, 3, 7)
+	
+	return mesh_data
+
+func _create_fill_cube() -> MeshData:
+	var mesh_data := MeshData.new(PackedVector3Array(), PackedInt32Array())
+	mesh_data.resize_for_vertices(8)
+	mesh_data.resize_for_triangles(6 * 2)
+	
+	mesh_data.set_vertex(0, Vector3(0.0, 0.0, 0.0))
+	mesh_data.set_vertex(1, Vector3(1.0, 0.0, 0.0))
+	mesh_data.set_vertex(2, Vector3(0.0, 1.0, 0.0))
+	mesh_data.set_vertex(3, Vector3(1.0, 1.0, 0.0))
+	mesh_data.set_vertex(4, Vector3(0.0, 0.0, 1.0))
+	mesh_data.set_vertex(5, Vector3(1.0, 0.0, 1.0))
+	mesh_data.set_vertex(6, Vector3(0.0, 1.0, 1.0))
+	mesh_data.set_vertex(7, Vector3(1.0, 1.0, 1.0))
+	
+	_create_fill_face(mesh_data, 0, 0, 1, 2, 3)
+	_create_fill_face(mesh_data, 1, 5, 4, 7, 6)
+	_create_fill_face(mesh_data, 2, 4, 0, 6, 2)
+	_create_fill_face(mesh_data, 3, 1, 5, 3, 7)
+	_create_fill_face(mesh_data, 4, 2, 3, 6, 7)
+	_create_fill_face(mesh_data, 5, 1, 0, 5, 4)
+	
+	return mesh_data
+
+func _create_fill_face(mesh_data: MeshData, face_index: int, bottom_left: int, bottom_right: int, top_left: int, top_right: int) -> void:
+	mesh_data.set_triangle_indices(face_index * 2 + 0, bottom_left, bottom_right, top_right)
+	mesh_data.set_triangle_indices(face_index * 2 + 1, bottom_left, top_right, top_left)
