@@ -31,5 +31,23 @@ func _create_multimesh(array_mesh: ArrayMesh) -> MultiMesh:
 	
 	return multimesh
 
+func _create_lines_material() -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.vertex_color_use_as_albedo = true
+	
+	return material
+
+func _create_fill_material() -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.vertex_color_use_as_albedo = true
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.cull_mode = BaseMaterial3D.CULL_DISABLED
+	
+	return material
+
 func _push_too_many_shapes_warning() -> void:
 	push_warning(TOO_MANY_SHAPES_WARNING % _max_shape_instances)
