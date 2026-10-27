@@ -3,6 +3,7 @@ class_name DebugDrawer extends Node3D
 
 #region references
 var _cube_drawer: DebugCubeDrawer = null
+var _cylinder_drawer: DebugCylinderDrawer = null
 var _line_drawer: DebugLineDrawer = null
 var _sphere_drawer: DebugSphereDrawer = null
 
@@ -11,6 +12,10 @@ func _enter_tree() -> void:
 	if _cube_drawer == null:
 		_cube_drawer = DebugCubeDrawer.new()
 		add_child(_cube_drawer, false, Node.INTERNAL_MODE_FRONT)
+	
+	if _cylinder_drawer == null:
+		_cylinder_drawer = DebugCylinderDrawer.new()
+		add_child(_cylinder_drawer, false, Node.INTERNAL_MODE_FRONT)
 	
 	if _line_drawer == null:
 		_line_drawer = DebugLineDrawer.new()
@@ -24,12 +29,16 @@ func _enter_tree() -> void:
 
 func _process(_delta: float) -> void:
 	_cube_drawer.reset()
+	_cylinder_drawer.reset()
 	_line_drawer.reset()
 	_sphere_drawer.reset()
 
 #region public_functions
 func draw_cube(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
 	_cube_drawer.draw(min_point, size, line_color, fill_color)
+
+func draw_cylinder(center: Vector3, height: float, top_radius: float, bottom_radius: float, resolution: int, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
+	_cylinder_drawer.draw(center, height, top_radius, bottom_radius, resolution, line_color, fill_color)
 
 func draw_line(start: Vector3, end: Vector3, line_color: Color) -> void:
 	_line_drawer.draw(start, end, line_color)
