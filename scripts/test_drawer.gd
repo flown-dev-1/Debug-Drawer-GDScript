@@ -17,10 +17,15 @@ func _process(_delta: float) -> void:
 	debug_drawer.draw_cylinder(Vector3(-6.0, 0.0, 0.0), 2.0, 0.5, 1.0, 20, Color.MAGENTA, Color(1.0, 0.0, 1.0, 0.2))
 	debug_drawer.draw_cylinder(Vector3(-6.0, 0.0, -3.0), 1.0, 0.5, sin(Time.get_ticks_msec() / 1000.0) + 1.0, 20, Color.WHITE, Color(1.0, 1.0, 1.0, 0.2))
 	
-	#for i: int in range(1024):
-		#debug_drawer.draw_cube( \
-			#Vector3(randf_range(-10.0, 10.0), randf_range(-10.0, 10.0), randf_range(-10.0, 10.0)), \
-			#Vector3(randf_range(-10.0, 10.0), randf_range(-10.0, 10.0), randf_range(-10.0, 10.0)), \
-			#Color(randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0), 1.0), \
-			#Color(randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0)) \
-		#)
+	if !Engine.is_editor_hint():
+		for i: int in range(1024):
+			debug_drawer.draw_cylinder( \
+				Vector3(randf_range(-10.0, 10.0), randf_range(-10.0, 10.0), randf_range(-10.0, 10.0)), \
+				randf_range(0.0, 10.0), \
+				randf_range(0.0, 1.0), \
+				randf_range(0.0, 1.0), \
+				#randi_range(0, 40), \
+				20, \
+				Color(randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0), 1.0), \
+				Color(randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0)) \
+			)

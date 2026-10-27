@@ -3,15 +3,17 @@ class_name DebugCylinderDrawer extends DebugShapeDrawer
 
 #region constants
 const MIN_RESOLUTION: int = 3
-const ROUNDING_FACTOR: int = 2048
+const ROUNDING_FACTOR: int = 256
 
 #region references
 var _lines_material: StandardMaterial3D = null
+var _lines_mesh_dirty: Dictionary[Vector2i, bool] = {}
 var _lines_array_meshes: Dictionary[Vector2i, ArrayMesh] = {}
 var _lines_multimeshes: Dictionary[Vector2i, MultiMesh] = {}
 var _lines_multi_mesh_instances: Dictionary[Vector2i, MultiMeshInstance3D] = {}
 
 var _fill_material: StandardMaterial3D = null
+var _fill_mesh_dirty: Dictionary[Vector2i, bool] = {}
 var _fill_array_meshes: Dictionary[Vector2i, ArrayMesh] = {}
 var _fill_multimeshes: Dictionary[Vector2i, MultiMesh] = {}
 var _fill_multi_mesh_instances: Dictionary[Vector2i, MultiMeshInstance3D] = {}
@@ -64,11 +66,29 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 		fill_multimesh.visible_instance_count += 1
 
 func reset() -> void:
-	for lines_multimesh in _lines_multimeshes.values():
-		lines_multimesh.visible_instance_count = 0
+	for mesh_key in _lines_mesh_dirty.keys():
+		if _lines_mesh_dirty[mesh_key]:
+			_lines_multi_mesh_instances[mesh_key].free()
+			
+			_lines_mesh_dirty.erase(mesh_key)
+			_lines_array_meshes.erase(mesh_key)
+			_lines_multimeshes.erase(mesh_key)
+			_lines_multi_mesh_instances.erase(mesh_key)
+		else:
+			_lines_multimeshes[mesh_key].visible_instance_count = 0
+			_lines_mesh_dirty[mesh_key] = true
 	
-	for fill_multimesh in _fill_multimeshes.values():
-		fill_multimesh.visible_instance_count = 0
+	for mesh_key in _fill_mesh_dirty.keys():
+		if _fill_mesh_dirty[mesh_key]:
+			_fill_multi_mesh_instances[mesh_key].free()
+			
+			_fill_mesh_dirty.erase(mesh_key)
+			_fill_array_meshes.erase(mesh_key)
+			_fill_multimeshes.erase(mesh_key)
+			_fill_multi_mesh_instances.erase(mesh_key)
+		else:
+			_fill_multimeshes[mesh_key].visible_instance_count = 0
+			_fill_mesh_dirty[mesh_key] = true
 
 #region private_functions
 func _ensure_lines_mesh(resolution: int, relative_size_top: float) -> void:
@@ -82,6 +102,8 @@ func _ensure_lines_mesh(resolution: int, relative_size_top: float) -> void:
 		_lines_array_meshes[mesh_key] = lines_array_mesh
 		_lines_multimeshes[mesh_key] = lines_multimesh
 		_lines_multi_mesh_instances[mesh_key] = lines_mesh_instance
+	
+	_lines_mesh_dirty[mesh_key] = false
 
 func _ensure_fill_mesh(resolution: int, relative_size_top: float) -> void:
 	var mesh_key := _get_mesh_key(resolution, relative_size_top)
@@ -94,6 +116,8 @@ func _ensure_fill_mesh(resolution: int, relative_size_top: float) -> void:
 		_fill_array_meshes[mesh_key] = fill_array_mesh
 		_fill_multimeshes[mesh_key] = fill_multimesh
 		_fill_multi_mesh_instances[mesh_key] = fill_mesh_instance
+	
+	_fill_mesh_dirty[mesh_key] = false
 
 func _create_lines_array_mesh(resolution: int, relative_size_top: float) -> ArrayMesh:
 	var mesh_data: MeshData
