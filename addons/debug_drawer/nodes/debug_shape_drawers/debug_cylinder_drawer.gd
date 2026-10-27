@@ -2,21 +2,21 @@
 class_name DebugCylinderDrawer extends DebugShapeDrawer
 
 #region constants
+const SHADER: Shader = preload("res://addons/debug_drawer/shaders/cylinder.gdshader")
 const MIN_RESOLUTION: int = 3
-const ROUNDING_FACTOR: int = 256
 
 #region references
-var _lines_material: StandardMaterial3D = null
-var _lines_mesh_dirty: Dictionary[Vector2i, bool] = {}
-var _lines_array_meshes: Dictionary[Vector2i, ArrayMesh] = {}
-var _lines_multimeshes: Dictionary[Vector2i, MultiMesh] = {}
-var _lines_multi_mesh_instances: Dictionary[Vector2i, MultiMeshInstance3D] = {}
+var _material: ShaderMaterial = null
 
-var _fill_material: StandardMaterial3D = null
-var _fill_mesh_dirty: Dictionary[Vector2i, bool] = {}
-var _fill_array_meshes: Dictionary[Vector2i, ArrayMesh] = {}
-var _fill_multimeshes: Dictionary[Vector2i, MultiMesh] = {}
-var _fill_multi_mesh_instances: Dictionary[Vector2i, MultiMeshInstance3D] = {}
+var _lines_dirty: Dictionary[int, bool] = {}
+var _lines_array_meshes: Dictionary[int, ArrayMesh] = {}
+var _lines_multimeshes: Dictionary[int, MultiMesh] = {}
+var _lines_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
+
+var _fill_dirty: Dictionary[int, bool] = {}
+var _fill_array_meshes: Dictionary[int, ArrayMesh] = {}
+var _fill_multimeshes: Dictionary[int, MultiMesh] = {}
+var _fill_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
 
 #region public_functions
 func draw(center: Vector3, height: float, top_radius: float, bottom_radius: float, resolution: int, line_color: Color, fill_color: Color) -> void:
@@ -32,99 +32,92 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 	
 	resolution = maxi(resolution, MIN_RESOLUTION)
 	
-	var relative_size_top := snapped(top_radius / bottom_radius, 1.0 / ROUNDING_FACTOR)
-	
-	var mesh_key := _get_mesh_key(resolution, relative_size_top)
+	var relative_size_top := top_radius / bottom_radius
 	
 	var vertical_scale := -height if swap_vertically else height
 	var instance_transform := Transform3D(Basis.from_scale(Vector3(bottom_radius, vertical_scale, bottom_radius)), center)
+	var instance_custom_data := Color(relative_size_top, 0.0, 0.0, 0.0)
 	
 	if line_color.a > 0.0:
-		_ensure_lines_mesh(resolution, relative_size_top)
+		_ensure_lines_resolution(resolution)
 		
-		var lines_multimesh := _lines_multimeshes[mesh_key]
+		var lines_multimesh := _lines_multimeshes[resolution]
 		
 		if lines_multimesh.visible_instance_count >= lines_multimesh.instance_count:
 			_push_too_many_shapes_warning()
 		
 		lines_multimesh.set_instance_transform(lines_multimesh.visible_instance_count, instance_transform)
 		lines_multimesh.set_instance_color(lines_multimesh.visible_instance_count, line_color)
+		lines_multimesh.set_instance_custom_data(lines_multimesh.visible_instance_count, instance_custom_data)
 		
 		lines_multimesh.visible_instance_count += 1
 	
 	if fill_color.a > 0.0:
-		_ensure_fill_mesh(resolution, relative_size_top)
+		_ensure_fill_resolution(resolution)
 		
-		var fill_multimesh := _fill_multimeshes[mesh_key]
+		var fill_multimesh := _fill_multimeshes[resolution]
 		
 		if fill_multimesh.visible_instance_count >= fill_multimesh.instance_count:
 			_push_too_many_shapes_warning()
 		
 		fill_multimesh.set_instance_transform(fill_multimesh.visible_instance_count, instance_transform)
 		fill_multimesh.set_instance_color(fill_multimesh.visible_instance_count, fill_color)
+		fill_multimesh.set_instance_custom_data(fill_multimesh.visible_instance_count, instance_custom_data)
 		
 		fill_multimesh.visible_instance_count += 1
 
 func reset() -> void:
-	for mesh_key in _lines_mesh_dirty.keys():
-		if _lines_mesh_dirty[mesh_key]:
-			_lines_multi_mesh_instances[mesh_key].free()
+	for resolution: int in _lines_dirty.keys():
+		if _lines_dirty[resolution]:
+			_lines_multi_mesh_instances[resolution].free()
 			
-			_lines_mesh_dirty.erase(mesh_key)
-			_lines_array_meshes.erase(mesh_key)
-			_lines_multimeshes.erase(mesh_key)
-			_lines_multi_mesh_instances.erase(mesh_key)
+			_lines_dirty.erase(resolution)
+			_lines_array_meshes.erase(resolution)
+			_lines_multimeshes.erase(resolution)
+			_lines_multi_mesh_instances.erase(resolution)
 		else:
-			_lines_multimeshes[mesh_key].visible_instance_count = 0
-			_lines_mesh_dirty[mesh_key] = true
+			_lines_multimeshes[resolution].visible_instance_count = 0
+			_lines_dirty[resolution] = true
 	
-	for mesh_key in _fill_mesh_dirty.keys():
-		if _fill_mesh_dirty[mesh_key]:
-			_fill_multi_mesh_instances[mesh_key].free()
+	for resolution: int in _fill_dirty.keys():
+		if _fill_dirty[resolution]:
+			_fill_multi_mesh_instances[resolution].free()
 			
-			_fill_mesh_dirty.erase(mesh_key)
-			_fill_array_meshes.erase(mesh_key)
-			_fill_multimeshes.erase(mesh_key)
-			_fill_multi_mesh_instances.erase(mesh_key)
+			_fill_dirty.erase(resolution)
+			_fill_array_meshes.erase(resolution)
+			_fill_multimeshes.erase(resolution)
+			_fill_multi_mesh_instances.erase(resolution)
 		else:
-			_fill_multimeshes[mesh_key].visible_instance_count = 0
-			_fill_mesh_dirty[mesh_key] = true
+			_fill_multimeshes[resolution].visible_instance_count = 0
+			_fill_dirty[resolution] = true
 
 #region private_functions
-func _ensure_lines_mesh(resolution: int, relative_size_top: float) -> void:
-	var mesh_key := _get_mesh_key(resolution, relative_size_top)
-	
-	if !_lines_array_meshes.has(mesh_key):
-		var lines_array_mesh := _create_lines_array_mesh(resolution, relative_size_top)
-		var lines_multimesh := _create_multimesh(lines_array_mesh)
+func _ensure_lines_resolution(resolution: int) -> void:
+	if !_lines_array_meshes.has(resolution):
+		var lines_array_mesh := _create_lines_array_mesh(resolution)
+		var lines_multimesh := _create_multimesh(lines_array_mesh, true)
 		var lines_mesh_instance := _create_multi_mesh_instance(lines_multimesh)
 		
-		_lines_array_meshes[mesh_key] = lines_array_mesh
-		_lines_multimeshes[mesh_key] = lines_multimesh
-		_lines_multi_mesh_instances[mesh_key] = lines_mesh_instance
+		_lines_array_meshes[resolution] = lines_array_mesh
+		_lines_multimeshes[resolution] = lines_multimesh
+		_lines_multi_mesh_instances[resolution] = lines_mesh_instance
 	
-	_lines_mesh_dirty[mesh_key] = false
+	_lines_dirty[resolution] = false
 
-func _ensure_fill_mesh(resolution: int, relative_size_top: float) -> void:
-	var mesh_key := _get_mesh_key(resolution, relative_size_top)
-	
-	if !_fill_array_meshes.has(mesh_key):
-		var fill_array_mesh := _create_fill_array_mesh(resolution, relative_size_top)
-		var fill_multimesh := _create_multimesh(fill_array_mesh)
+func _ensure_fill_resolution(resolution: int) -> void:
+	if !_fill_array_meshes.has(resolution):
+		var fill_array_mesh := _create_fill_array_mesh(resolution)
+		var fill_multimesh := _create_multimesh(fill_array_mesh, true)
 		var fill_mesh_instance := _create_multi_mesh_instance(fill_multimesh)
 		
-		_fill_array_meshes[mesh_key] = fill_array_mesh
-		_fill_multimeshes[mesh_key] = fill_multimesh
-		_fill_multi_mesh_instances[mesh_key] = fill_mesh_instance
+		_fill_array_meshes[resolution] = fill_array_mesh
+		_fill_multimeshes[resolution] = fill_multimesh
+		_fill_multi_mesh_instances[resolution] = fill_mesh_instance
 	
-	_fill_mesh_dirty[mesh_key] = false
+	_fill_dirty[resolution] = false
 
-func _create_lines_array_mesh(resolution: int, relative_size_top: float) -> ArrayMesh:
-	var mesh_data: MeshData
-	if relative_size_top == 0.0:
-		mesh_data = _create_lines_cone(resolution)
-	else:
-		mesh_data = _create_lines_cylinder(resolution, relative_size_top)
+func _create_lines_array_mesh(resolution: int) -> ArrayMesh:
+	var mesh_data := _create_lines_cylinder(resolution)
 	
 	var array_mesh := ArrayMesh.new()
 	
@@ -135,19 +128,15 @@ func _create_lines_array_mesh(resolution: int, relative_size_top: float) -> Arra
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, arrays)
 	
-	if _lines_material == null:
-		_lines_material = _create_lines_material()
+	if _material == null:
+		_material = _create_shader_material(SHADER)
 	
-	array_mesh.surface_set_material(0, _lines_material)
+	array_mesh.surface_set_material(0, _material)
 	
 	return array_mesh
 
-func _create_fill_array_mesh(resolution: int, relative_size_top: float) -> ArrayMesh:
-	var mesh_data: MeshData
-	if relative_size_top == 0.0:
-		mesh_data = _create_fill_cone(resolution)
-	else:
-		mesh_data = _create_fill_cylinder(resolution, relative_size_top)
+func _create_fill_array_mesh(resolution: int) -> ArrayMesh:
+	var mesh_data := _create_fill_cylinder(resolution)
 	
 	var array_mesh := ArrayMesh.new()
 	
@@ -158,20 +147,20 @@ func _create_fill_array_mesh(resolution: int, relative_size_top: float) -> Array
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	
-	if _fill_material == null:
-		_fill_material = _create_fill_material()
+	if _material == null:
+		_material = _create_shader_material(SHADER)
 	
-	array_mesh.surface_set_material(0, _fill_material)
+	array_mesh.surface_set_material(0, _material)
 	
 	return array_mesh
 
-func _create_lines_cylinder(resolution: int, relative_size_top: float) -> MeshData:
+func _create_lines_cylinder(resolution: int) -> MeshData:
 	var mesh_data := MeshData.new(PackedVector3Array(), PackedInt32Array())
 	mesh_data.resize_for_vertices(resolution * 2)
 	mesh_data.resize_for_lines(resolution * 3)
 	
-	_set_circle_vertices(mesh_data, 0         , resolution, Vector3(0.0, -0.5, 0.0), 1.0              )
-	_set_circle_vertices(mesh_data, resolution, resolution, Vector3(0.0,  0.5, 0.0), relative_size_top)
+	_set_circle_vertices(mesh_data, 0         , resolution, Vector3(0.0, -0.5, 0.0), 1.0)
+	_set_circle_vertices(mesh_data, resolution, resolution, Vector3(0.0,  0.5, 0.0), 1.0)
 	
 	for segment: int in resolution:
 		var top_index := _get_top_vertex_index(resolution, segment)
@@ -187,35 +176,13 @@ func _create_lines_cylinder(resolution: int, relative_size_top: float) -> MeshDa
 	
 	return mesh_data
 
-func _create_lines_cone(resolution: int) -> MeshData:
-	var mesh_data := MeshData.new(PackedVector3Array(), PackedInt32Array())
-	mesh_data.resize_for_vertices(resolution + 1)
-	mesh_data.resize_for_lines(resolution * 2)
-	
-	_set_circle_vertices(mesh_data, 0, resolution, Vector3(0.0, -0.5, 0.0), 1.0)
-	
-	var top_center_index := resolution
-	
-	mesh_data.set_vertex(top_center_index, Vector3(0.0, 0.5, 0.0))
-	
-	for segment: int in resolution:
-		var bottom_index := _get_bottom_vertex_index(resolution, segment)
-		var next_bottom_index := _get_bottom_vertex_index(resolution, segment + 1)
-		
-		var line_index := segment * 2
-		
-		mesh_data.set_line_indices(line_index + 0, top_center_index, bottom_index)
-		mesh_data.set_line_indices(line_index + 1, bottom_index, next_bottom_index)
-	
-	return mesh_data
-
-func _create_fill_cylinder(resolution: int, relative_size_top: float) -> MeshData:
+func _create_fill_cylinder(resolution: int) -> MeshData:
 	var mesh_data := MeshData.new(PackedVector3Array(), PackedInt32Array())
 	mesh_data.resize_for_vertices(resolution * 2 + 2)
 	mesh_data.resize_for_triangles(resolution * 4)
 	
-	_set_circle_vertices(mesh_data, 0         , resolution, Vector3(0.0, -0.5, 0.0), 1.0              )
-	_set_circle_vertices(mesh_data, resolution, resolution, Vector3(0.0,  0.5, 0.0), relative_size_top)
+	_set_circle_vertices(mesh_data, 0         , resolution, Vector3(0.0, -0.5, 0.0), 1.0)
+	_set_circle_vertices(mesh_data, resolution, resolution, Vector3(0.0,  0.5, 0.0), 1.0)
 	
 	var top_center_index := resolution * 2
 	var bottom_center_index := resolution * 2 + 1
@@ -238,30 +205,6 @@ func _create_fill_cylinder(resolution: int, relative_size_top: float) -> MeshDat
 	
 	return mesh_data
 
-func _create_fill_cone(resolution: int) -> MeshData:
-	var mesh_data := MeshData.new(PackedVector3Array(), PackedInt32Array())
-	mesh_data.resize_for_vertices(resolution + 2)
-	mesh_data.resize_for_triangles(resolution * 2)
-	
-	_set_circle_vertices(mesh_data, 0, resolution, Vector3(0.0, -0.5, 0.0), 1.0)
-	
-	var top_center_index := resolution
-	var bottom_center_index := resolution + 1
-	
-	mesh_data.set_vertex(top_center_index, Vector3(0.0, 0.5, 0.0))
-	mesh_data.set_vertex(bottom_center_index, Vector3(0.0, -0.5, 0.0))
-	
-	for segment: int in resolution:
-		var bottom_index := _get_bottom_vertex_index(resolution, segment)
-		var next_bottom_index := _get_bottom_vertex_index(resolution, segment + 1)
-		
-		var triangle_index := segment * 2
-		
-		mesh_data.set_triangle_indices(triangle_index + 0, top_center_index, next_bottom_index, bottom_index)
-		mesh_data.set_triangle_indices(triangle_index + 1, bottom_center_index, bottom_index, next_bottom_index)
-	
-	return mesh_data
-
 func _set_circle_vertices(mesh_data: MeshData, index_offset: int, resolution: int, offset: Vector3, radius: float) -> void:
 	var step := TAU / float(resolution)
 	
@@ -271,11 +214,6 @@ func _set_circle_vertices(mesh_data: MeshData, index_offset: int, resolution: in
 		var z := sin(angle)
 		
 		mesh_data.set_vertex(index_offset + segment, offset + Vector3(x, 0.0, z) * radius)
-
-func _get_mesh_key(resolution: int, relative_size_top: float) -> Vector2i:
-	var rounded_size_top := roundi(relative_size_top * ROUNDING_FACTOR)
-	
-	return Vector2i(resolution, rounded_size_top)
 
 func _get_top_vertex_index(resolution: int, segment: int) -> int:
 	return resolution + posmod(segment, resolution)
