@@ -51,13 +51,20 @@ func draw_cube_rotated(min_point: Vector3, size: Vector3, rotation: Quaternion, 
 func draw_line(start: Vector3, end: Vector3, line_color: Color) -> void:
 	_line_drawer.draw(start, end, line_color)
 
+func draw_path(path: PackedVector3Array, line_color: Color) -> void:
+	for i in range(path.size() - 1):
+		var current_point := path[i]
+		var next_point := path[i + 1]
+		
+		_line_drawer.draw(current_point, next_point, line_color)
+
 func draw_vector(origin: Vector3, vector: Vector3, line_color: Color, draw_arrow: bool = true) -> void:
-	draw_line(origin, origin + vector, line_color)
+	_line_drawer.draw(origin, origin + vector, line_color)
 	
 	var vector_length := vector.length()
 	var arrow_scale = vector_length / 20.0
 	var normalized_vector := vector.normalized()
-	draw_cylinder_rotated(origin + vector - (normalized_vector * arrow_scale) / 2.0, arrow_scale * 2.0, 0.0, arrow_scale / 1.5, Quaternion(Vector3.UP, normalized_vector), 16, Color.TRANSPARENT, line_color)
+	_cylinder_drawer.draw(origin + vector - (normalized_vector * arrow_scale) / 2.0, arrow_scale * 2.0, 0.0, arrow_scale / 1.5, Quaternion(Vector3.UP, normalized_vector), 16, Color.TRANSPARENT, line_color)
 
 func draw_sphere(center: Vector3, radius: float, resolution: int, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
 	_sphere_drawer.draw(center, radius, resolution, line_color, fill_color)

@@ -19,6 +19,13 @@ func _process(_delta: float) -> void:
 	
 	debug_drawer.draw_vector(Vector3(3.0, 0.0, -2.0), Vector3(1.0, 0.5, -2.0), Color.CORAL)
 	
+	debug_drawer.draw_path(PackedVector3Array([
+		Vector3(3.0, 0.0, -6.0),
+		Vector3(4.0, 1.0, -6.0),
+		Vector3(4.0, 0.0, -6.0),
+		Vector3(4.0, 2.0, -7.0)
+	]), Color.BLUE_VIOLET)
+	
 	if !Engine.is_editor_hint():
 		for i: int in range(1000):
 			debug_drawer.draw_cylinder( \
