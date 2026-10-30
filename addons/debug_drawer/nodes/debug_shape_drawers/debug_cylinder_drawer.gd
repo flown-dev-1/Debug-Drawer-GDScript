@@ -25,20 +25,10 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 	if top_radius == 0.0 && bottom_radius == 0.0:
 		return
 	
-	var swap_vertically = top_radius > bottom_radius
-	
-	if swap_vertically:
-		var temp = bottom_radius
-		bottom_radius = top_radius
-		top_radius = temp
-	
 	resolution = maxi(resolution, MIN_RESOLUTION)
-	
-	var relative_size_top := top_radius / bottom_radius
-	
-	var vertical_scale := -height if swap_vertically else height
-	var instance_transform := Transform3D(Basis.from_scale(Vector3(bottom_radius, vertical_scale, bottom_radius)), center)
-	var instance_custom_data := Color(relative_size_top, 0.0, 0.0, 0.0)
+
+	var instance_transform := Transform3D(Basis.from_scale(Vector3(1.0, height, 1.0)), center)
+	var instance_custom_data := Color(top_radius, bottom_radius, 0.0, 0.0)
 	
 	if line_color.a > 0.0:
 		if !_lines_array_meshes.has(resolution):
