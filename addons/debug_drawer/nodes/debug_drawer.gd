@@ -31,13 +31,15 @@ func _enter_tree() -> void:
 
 func _process(_delta: float) -> void:
 	_cube_drawer.reset()
-	_cylinder_drawer.reset()
 	_line_drawer.reset()
 	_sphere_drawer.reset()
+	_cylinder_drawer.reset()
 
 func _late_process(_delta: float) -> void:
-	_cylinder_drawer.finalize()
+	_cube_drawer.finalize()
+	_line_drawer.finalize()
 	_sphere_drawer.finalize()
+	_cylinder_drawer.finalize()
 
 #region public_functions
 func draw_cube(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:

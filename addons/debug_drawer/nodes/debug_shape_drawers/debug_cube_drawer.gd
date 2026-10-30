@@ -2,10 +2,12 @@
 class_name DebugCubeDrawer extends DebugShapeDrawer
 
 #region references
+var _lines_count: int = 0
 var _lines_array_mesh: ArrayMesh = null
 var _lines_multimesh: MultiMesh = null
 var _lines_multi_mesh_instance: MultiMeshInstance3D = null
 
+var _fill_count: int = 0
 var _fill_array_mesh: ArrayMesh = null
 var _fill_multimesh: MultiMesh = null
 var _fill_multi_mesh_instance: MultiMeshInstance3D = null
@@ -26,26 +28,36 @@ func _enter_tree() -> void:
 
 #region public_functions
 func draw(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color) -> void:
-	if _lines_multimesh.visible_instance_count >= _lines_multimesh.instance_count:
-		_push_too_many_shapes_warning()
+	if size == Vector3.ZERO:
+		return
 	
 	var instance_transform := Transform3D(Basis.from_scale(size), min_point)
 	
 	if line_color.a > 0.0:
-		_lines_multimesh.set_instance_transform(_lines_multimesh.visible_instance_count, instance_transform)
-		_lines_multimesh.set_instance_color(_lines_multimesh.visible_instance_count, line_color)
+		if _lines_count >= _max_shape_instances:
+			_push_too_many_shapes_warning()
 		
-		_lines_multimesh.visible_instance_count += 1
+		_lines_multimesh.set_instance_transform(_lines_count, instance_transform)
+		_lines_multimesh.set_instance_color(_lines_count, line_color)
+		
+		_lines_count += 1
 	
 	if fill_color.a > 0.0:
-		_fill_multimesh.set_instance_transform(_fill_multimesh.visible_instance_count, instance_transform)
-		_fill_multimesh.set_instance_color(_fill_multimesh.visible_instance_count, fill_color)
+		if _fill_count >= _max_shape_instances:
+			_push_too_many_shapes_warning()
 		
-		_fill_multimesh.visible_instance_count += 1
+		_fill_multimesh.set_instance_transform(_fill_count, instance_transform)
+		_fill_multimesh.set_instance_color(_fill_count, fill_color)
+		
+		_fill_count += 1
+
+func finalize() -> void:
+	_lines_multimesh.visible_instance_count = _lines_count
+	_fill_multimesh.visible_instance_count = _fill_count
 
 func reset() -> void:
-	_lines_multimesh.visible_instance_count = 0
-	_fill_multimesh.visible_instance_count = 0
+	_lines_count = 0
+	_fill_count = 0
 
 #region private_functions
 func _create_lines_array_mesh() -> ArrayMesh:

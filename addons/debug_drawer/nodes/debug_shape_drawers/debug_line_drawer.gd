@@ -2,6 +2,7 @@
 class_name DebugLineDrawer extends DebugShapeDrawer
 
 #region references
+var _lines_count: int = 0
 var _lines_array_mesh: ArrayMesh = null
 var _lines_multimesh: MultiMesh = null
 var _lines_multi_mesh_instance: MultiMeshInstance3D = null
@@ -17,22 +18,25 @@ func _enter_tree() -> void:
 
 #region public_functions
 func draw(start: Vector3, end: Vector3, line_color: Color) -> void:
-	if line_color.a <= 0.0:
+	if line_color.a <= 0.0 || start == end:
 		return
 	
-	if _lines_multimesh.visible_instance_count >= _lines_multimesh.instance_count:
+	if _lines_count >= _max_shape_instances:
 		_push_too_many_shapes_warning()
 	
 	var offset := end - start
 	var instance_transform := Transform3D(Basis(offset, Vector3.ZERO, Vector3.ZERO), start)
 	
-	_lines_multimesh.set_instance_transform(_lines_multimesh.visible_instance_count, instance_transform)
-	_lines_multimesh.set_instance_color(_lines_multimesh.visible_instance_count, line_color)
+	_lines_multimesh.set_instance_transform(_lines_count, instance_transform)
+	_lines_multimesh.set_instance_color(_lines_count, line_color)
 	
-	_lines_multimesh.visible_instance_count += 1
+	_lines_count += 1
+
+func finalize() -> void:
+	_lines_multimesh.visible_instance_count = _lines_count
 
 func reset() -> void:
-	_lines_multimesh.visible_instance_count = 0
+	_lines_count = 0
 
 #region private_functions
 func _create_lines_array_mesh() -> ArrayMesh:
