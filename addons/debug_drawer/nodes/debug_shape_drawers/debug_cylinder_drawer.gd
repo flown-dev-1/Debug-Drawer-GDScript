@@ -22,7 +22,7 @@ var _fill_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
 
 #region public_functions
 func draw(center: Vector3, height: float, top_radius: float, bottom_radius: float, resolution: int, line_color: Color, fill_color: Color) -> void:
-	if top_radius == 0.0 && bottom_radius == 0.0:
+	if height == 0.0 || (top_radius == 0.0 && bottom_radius == 0.0):
 		return
 	
 	resolution = maxi(resolution, MIN_RESOLUTION)
@@ -39,7 +39,7 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 		var lines_multimesh := _lines_multimeshes[resolution]
 		var lines_count := _lines_counts[resolution]
 		
-		if lines_count >= lines_multimesh.instance_count:
+		if lines_count >= _max_shape_instances:
 			_push_too_many_shapes_warning()
 		
 		lines_multimesh.set_instance_transform(lines_count, instance_transform)
@@ -57,7 +57,7 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 		var fill_multimesh := _fill_multimeshes[resolution]
 		var fill_count := _fill_counts[resolution]
 		
-		if fill_count >= fill_multimesh.instance_count:
+		if fill_count >= _max_shape_instances:
 			_push_too_many_shapes_warning()
 		
 		fill_multimesh.set_instance_transform(fill_count, instance_transform)
