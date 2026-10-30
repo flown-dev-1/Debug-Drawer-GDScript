@@ -37,6 +37,7 @@ func _process(_delta: float) -> void:
 
 func _late_process(_delta: float) -> void:
 	_cylinder_drawer.finalize()
+	_sphere_drawer.finalize()
 
 #region public_functions
 func draw_cube(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
