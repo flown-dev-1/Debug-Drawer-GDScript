@@ -41,7 +41,10 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 	var instance_custom_data := Color(relative_size_top, 0.0, 0.0, 0.0)
 	
 	if line_color.a > 0.0:
-		_ensure_lines_resolution(resolution)
+		if !_lines_array_meshes.has(resolution):
+			_create_lines_resolution(resolution)
+		
+		_lines_dirty[resolution] = false
 		
 		var lines_multimesh := _lines_multimeshes[resolution]
 		var lines_count := _lines_counts[resolution]
@@ -56,7 +59,10 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 		_lines_counts[resolution] = lines_count + 1
 	
 	if fill_color.a > 0.0:
-		_ensure_fill_resolution(resolution)
+		if !_fill_array_meshes.has(resolution):
+			_create_fill_resolution(resolution)
+		
+		_fill_dirty[resolution] = false
 		
 		var fill_multimesh := _fill_multimeshes[resolution]
 		var fill_count := _fill_counts[resolution]
@@ -105,31 +111,25 @@ func reset() -> void:
 			_fill_dirty[resolution] = true
 
 #region private_functions
-func _ensure_lines_resolution(resolution: int) -> void:
-	if !_lines_array_meshes.has(resolution):
-		var lines_array_mesh := _create_lines_array_mesh(resolution)
-		var lines_multimesh := _create_multimesh(lines_array_mesh, true)
-		var lines_mesh_instance := _create_multi_mesh_instance(lines_multimesh)
-		
-		_lines_counts[resolution] = 0
-		_lines_array_meshes[resolution] = lines_array_mesh
-		_lines_multimeshes[resolution] = lines_multimesh
-		_lines_multi_mesh_instances[resolution] = lines_mesh_instance
+func _create_lines_resolution(resolution: int) -> void:
+	var lines_array_mesh := _create_lines_array_mesh(resolution)
+	var lines_multimesh := _create_multimesh(lines_array_mesh, true)
+	var lines_mesh_instance := _create_multi_mesh_instance(lines_multimesh)
 	
-	_lines_dirty[resolution] = false
+	_lines_counts[resolution] = 0
+	_lines_array_meshes[resolution] = lines_array_mesh
+	_lines_multimeshes[resolution] = lines_multimesh
+	_lines_multi_mesh_instances[resolution] = lines_mesh_instance
 
-func _ensure_fill_resolution(resolution: int) -> void:
-	if !_fill_array_meshes.has(resolution):
-		var fill_array_mesh := _create_fill_array_mesh(resolution)
-		var fill_multimesh := _create_multimesh(fill_array_mesh, true)
-		var fill_mesh_instance := _create_multi_mesh_instance(fill_multimesh)
-		
-		_fill_counts[resolution] = 0
-		_fill_array_meshes[resolution] = fill_array_mesh
-		_fill_multimeshes[resolution] = fill_multimesh
-		_fill_multi_mesh_instances[resolution] = fill_mesh_instance
+func _create_fill_resolution(resolution: int) -> void:
+	var fill_array_mesh := _create_fill_array_mesh(resolution)
+	var fill_multimesh := _create_multimesh(fill_array_mesh, true)
+	var fill_mesh_instance := _create_multi_mesh_instance(fill_multimesh)
 	
-	_fill_dirty[resolution] = false
+	_fill_counts[resolution] = 0
+	_fill_array_meshes[resolution] = fill_array_mesh
+	_fill_multimeshes[resolution] = fill_multimesh
+	_fill_multi_mesh_instances[resolution] = fill_mesh_instance
 
 func _create_lines_array_mesh(resolution: int) -> ArrayMesh:
 	var mesh_data := _create_lines_cylinder(resolution)
