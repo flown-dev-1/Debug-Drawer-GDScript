@@ -9,7 +9,7 @@ var _max_shape_instances: int
 
 #region node_events
 func _enter_tree() -> void:
-	_max_shape_instances = ProjectSettings.get_setting("addons/debug_drawer/max_shape_instances")
+	_max_shape_instances = DebugDrawerSettings.get_max_shape_instances()
 
 #region private_functions
 func _create_multi_mesh_instance(multimesh: MultiMesh) -> MultiMeshInstance3D:

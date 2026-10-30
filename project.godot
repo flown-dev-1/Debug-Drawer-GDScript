@@ -8,15 +8,15 @@
 
 config_version=5
 
-[addons]
-
-debug_drawer/max_shape_instances=1024
-
 [application]
 
 config/name="Debug Draw Addon"
 run/main_scene="uid://bnkdu8rob06kx"
 config/features=PackedStringArray("4.7", "Forward Plus")
+
+[autoload]
+
+GlobalDebugDrawer="*uid://dmubfwdvac1rh"
 
 [debug]
 
@@ -28,10 +28,6 @@ gdscript/warnings/unsafe_cast=1
 gdscript/warnings/unsafe_call_argument=1
 gdscript/warnings/missing_await=1
 debug_drawer/max_shape_instances=1024
-
-[debug_drawer]
-
-max_shape_instances=1024
 
 [display]
 

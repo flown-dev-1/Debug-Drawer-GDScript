@@ -5,14 +5,13 @@
 
 [node name="Main" type="Node3D" unique_id=866237705]
 
-[node name="DebugDrawer" type="Node3D" parent="." unique_id=1155255056]
+[node name="DebugDrawer" type="Node3D" parent="." unique_id=2052134988]
 process_priority = -1000
 script = ExtResource("1_0wfyh")
 metadata/_custom_type_script = "uid://b5762taikh7dm"
 
-[node name="Tests" type="Node" parent="." unique_id=1504777771 node_paths=PackedStringArray("debug_drawer")]
+[node name="Tests" type="Node" parent="." unique_id=1504777771]
 script = ExtResource("1_o5qli")
-debug_drawer = NodePath("../DebugDrawer")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1286949761]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.2724586)

@@ -1,6 +1,9 @@
 @tool
 class_name DebugDrawer extends Node3D
 
+#region exports
+@export var global: bool = true
+
 #region references
 var _cube_drawer: DebugCubeDrawer = null
 var _line_drawer: DebugLineDrawer = null
@@ -29,6 +32,13 @@ func _enter_tree() -> void:
 	
 	process_priority = -1000
 
+func _ready() -> void:
+	if global:
+		GlobalDebugDrawer._register_debug_drawer(self)
+
+func _exit_tree() -> void:
+	GlobalDebugDrawer._unregister_scene_manager(self)
+
 func _process(_delta: float) -> void:
 	_cube_drawer.reset()
 	_line_drawer.reset()
@@ -42,11 +52,11 @@ func _late_process(_delta: float) -> void:
 	_cylinder_drawer.finalize()
 
 #region public_functions
-func draw_cube(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
-	_cube_drawer.draw(min_point, size, Quaternion.IDENTITY, line_color, fill_color)
+func draw_cube(center: Vector3, size: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
+	_cube_drawer.draw(center, size, Quaternion.IDENTITY, line_color, fill_color)
 
-func draw_cube_rotated(min_point: Vector3, size: Vector3, rotation: Quaternion, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
-	_cube_drawer.draw(min_point, size, rotation, line_color, fill_color)
+func draw_cube_rotated(center: Vector3, size: Vector3, rotation: Quaternion, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
+	_cube_drawer.draw(center, size, rotation, line_color, fill_color)
 
 func draw_line(start: Vector3, end: Vector3, line_color: Color) -> void:
 	_line_drawer.draw(start, end, line_color)
@@ -66,7 +76,7 @@ func draw_vector(origin: Vector3, vector: Vector3, line_color: Color, draw_arrow
 	var normalized_vector := vector.normalized()
 	_cylinder_drawer.draw(origin + vector - (normalized_vector * arrow_scale) / 2.0, arrow_scale * 2.0, 0.0, arrow_scale / 1.5, Quaternion(Vector3.UP, normalized_vector), 16, Color.TRANSPARENT, line_color)
 
-func draw_sphere(center: Vector3, radius: float, resolution: int, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
+func draw_sphere(center: Vector3, radius: float, resolution: DebugSphereDrawer.SphereResolution, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
 	_sphere_drawer.draw(center, radius, resolution, line_color, fill_color)
 
 func draw_cylinder(center: Vector3, height: float, top_radius: float, bottom_radius: float, resolution: int, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
