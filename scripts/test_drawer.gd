@@ -17,6 +17,8 @@ func _process(_delta: float) -> void:
 	debug_drawer.draw_cylinder(Vector3(-6.0, 0.0, 0.0), 2.0, 0.5, 1.0, 20, Color.MAGENTA, Color(1.0, 0.0, 1.0, 0.2))
 	debug_drawer.draw_cylinder_rotated(Vector3(-6.0, 0.0, -3.0), 1.0, 0.5, sin(Time.get_ticks_msec() / 1000.0) + 1.0, Quaternion.from_euler(Vector3(-0.5, 0.0, 0.0)), 20, Color.WHITE, Color(1.0, 1.0, 1.0, 0.2))
 	
+	debug_drawer.draw_vector(Vector3(3.0, 0.0, -2.0), Vector3(1.0, 0.5, -2.0), Color.CORAL)
+	
 	if !Engine.is_editor_hint():
 		for i: int in range(1000):
 			debug_drawer.draw_cylinder( \
