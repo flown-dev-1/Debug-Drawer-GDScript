@@ -1,6 +1,9 @@
 @tool
 extends Node
 
+#region state
+var _stress_testing: bool = false
+
 #region node_events
 func _process(_delta: float) -> void:
 	GlobalDebugDrawer.draw_cube_rotated(Vector3.ZERO, Vector3.ONE, Quaternion.from_euler(Vector3(0.5, 0.5, 0.0)), Color.RED, Color(1.0, 0.0, 0.0, 0.2))
@@ -24,13 +27,17 @@ func _process(_delta: float) -> void:
 	]), Color.BLUE_VIOLET)
 	
 	if !Engine.is_editor_hint():
-		for i: int in range(1000):
-			GlobalDebugDrawer.draw_cylinder( \
-				Vector3(randf_range(-10.0, 10.0), randf_range(-10.0, 10.0), randf_range(-10.0, 10.0)), \
-				randf_range(0.0, 10.0), \
-				randf_range(0.0, 1.0), \
-				randf_range(0.0, 1.0), \
-				randi_range(0, 40), \
-				Color(randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0), 1.0), \
-				Color(randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0)) \
-			)
+		if Input.is_action_just_pressed("toggle_stress_test"):
+			_stress_testing = !_stress_testing
+		
+		if _stress_testing:
+			for i: int in range(1000):
+				GlobalDebugDrawer.draw_cylinder( \
+					Vector3(randf_range(-10.0, 10.0), randf_range(-10.0, 10.0), randf_range(-10.0, 10.0)), \
+					randf_range(0.0, 10.0), \
+					randf_range(0.0, 1.0), \
+					randf_range(0.0, 1.0), \
+					randi_range(0, 40), \
+					Color(randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0), 1.0), \
+					Color(randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0), randf_range(0.0, 1.0)) \
+				)
