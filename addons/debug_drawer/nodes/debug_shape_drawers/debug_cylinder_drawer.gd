@@ -9,11 +9,13 @@ const MIN_RESOLUTION: int = 3
 var _material: ShaderMaterial = null
 
 var _lines_dirty: Dictionary[int, bool] = {}
+var _lines_counts: Dictionary[int, int] = {}
 var _lines_array_meshes: Dictionary[int, ArrayMesh] = {}
 var _lines_multimeshes: Dictionary[int, MultiMesh] = {}
 var _lines_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
 
 var _fill_dirty: Dictionary[int, bool] = {}
+var _fill_counts: Dictionary[int, int] = {}
 var _fill_array_meshes: Dictionary[int, ArrayMesh] = {}
 var _fill_multimeshes: Dictionary[int, MultiMesh] = {}
 var _fill_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
@@ -42,29 +44,38 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 		_ensure_lines_resolution(resolution)
 		
 		var lines_multimesh := _lines_multimeshes[resolution]
+		var lines_count := _lines_counts[resolution]
 		
-		if lines_multimesh.visible_instance_count >= lines_multimesh.instance_count:
+		if lines_count >= lines_multimesh.instance_count:
 			_push_too_many_shapes_warning()
 		
-		lines_multimesh.set_instance_transform(lines_multimesh.visible_instance_count, instance_transform)
-		lines_multimesh.set_instance_color(lines_multimesh.visible_instance_count, line_color)
-		lines_multimesh.set_instance_custom_data(lines_multimesh.visible_instance_count, instance_custom_data)
+		lines_multimesh.set_instance_transform(lines_count, instance_transform)
+		lines_multimesh.set_instance_color(lines_count, line_color)
+		lines_multimesh.set_instance_custom_data(lines_count, instance_custom_data)
 		
-		lines_multimesh.visible_instance_count += 1
+		_lines_counts[resolution] = lines_count + 1
 	
 	if fill_color.a > 0.0:
 		_ensure_fill_resolution(resolution)
 		
 		var fill_multimesh := _fill_multimeshes[resolution]
+		var fill_count := _fill_counts[resolution]
 		
-		if fill_multimesh.visible_instance_count >= fill_multimesh.instance_count:
+		if fill_count >= fill_multimesh.instance_count:
 			_push_too_many_shapes_warning()
 		
-		fill_multimesh.set_instance_transform(fill_multimesh.visible_instance_count, instance_transform)
-		fill_multimesh.set_instance_color(fill_multimesh.visible_instance_count, fill_color)
-		fill_multimesh.set_instance_custom_data(fill_multimesh.visible_instance_count, instance_custom_data)
+		fill_multimesh.set_instance_transform(fill_count, instance_transform)
+		fill_multimesh.set_instance_color(fill_count, fill_color)
+		fill_multimesh.set_instance_custom_data(fill_count, instance_custom_data)
 		
-		fill_multimesh.visible_instance_count += 1
+		_fill_counts[resolution] = fill_count + 1
+
+func finalize() -> void:
+	for resolution: int in _lines_multimeshes.keys():
+		_lines_multimeshes[resolution].visible_instance_count = _lines_counts[resolution]
+	
+	for resolution: int in _fill_multimeshes.keys():
+		_fill_multimeshes[resolution].visible_instance_count = _fill_counts[resolution]
 
 func reset() -> void:
 	for resolution: int in _lines_dirty.keys():
@@ -72,11 +83,12 @@ func reset() -> void:
 			_lines_multi_mesh_instances[resolution].free()
 			
 			_lines_dirty.erase(resolution)
+			_lines_counts.erase(resolution)
 			_lines_array_meshes.erase(resolution)
 			_lines_multimeshes.erase(resolution)
 			_lines_multi_mesh_instances.erase(resolution)
 		else:
-			_lines_multimeshes[resolution].visible_instance_count = 0
+			_lines_counts[resolution] = 0
 			_lines_dirty[resolution] = true
 	
 	for resolution: int in _fill_dirty.keys():
@@ -84,11 +96,12 @@ func reset() -> void:
 			_fill_multi_mesh_instances[resolution].free()
 			
 			_fill_dirty.erase(resolution)
+			_fill_counts.erase(resolution)
 			_fill_array_meshes.erase(resolution)
 			_fill_multimeshes.erase(resolution)
 			_fill_multi_mesh_instances.erase(resolution)
 		else:
-			_fill_multimeshes[resolution].visible_instance_count = 0
+			_fill_counts[resolution] = 0
 			_fill_dirty[resolution] = true
 
 #region private_functions
@@ -98,6 +111,7 @@ func _ensure_lines_resolution(resolution: int) -> void:
 		var lines_multimesh := _create_multimesh(lines_array_mesh, true)
 		var lines_mesh_instance := _create_multi_mesh_instance(lines_multimesh)
 		
+		_lines_counts[resolution] = 0
 		_lines_array_meshes[resolution] = lines_array_mesh
 		_lines_multimeshes[resolution] = lines_multimesh
 		_lines_multi_mesh_instances[resolution] = lines_mesh_instance
@@ -110,6 +124,7 @@ func _ensure_fill_resolution(resolution: int) -> void:
 		var fill_multimesh := _create_multimesh(fill_array_mesh, true)
 		var fill_mesh_instance := _create_multi_mesh_instance(fill_multimesh)
 		
+		_fill_counts[resolution] = 0
 		_fill_array_meshes[resolution] = fill_array_mesh
 		_fill_multimeshes[resolution] = fill_multimesh
 		_fill_multi_mesh_instances[resolution] = fill_mesh_instance

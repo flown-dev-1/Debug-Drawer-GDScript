@@ -25,6 +25,8 @@ func _enter_tree() -> void:
 		_sphere_drawer = DebugSphereDrawer.new()
 		add_child(_sphere_drawer, false, Node.INTERNAL_MODE_FRONT)
 	
+	add_child(LateProcesser.new(), false, Node.INTERNAL_MODE_FRONT)
+	
 	process_priority = -1000
 
 func _process(_delta: float) -> void:
@@ -32,6 +34,9 @@ func _process(_delta: float) -> void:
 	_cylinder_drawer.reset()
 	_line_drawer.reset()
 	_sphere_drawer.reset()
+
+func _late_process(_delta: float) -> void:
+	_cylinder_drawer.finalize()
 
 #region public_functions
 func draw_cube(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
