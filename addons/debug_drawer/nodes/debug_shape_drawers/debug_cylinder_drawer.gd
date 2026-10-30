@@ -8,13 +8,11 @@ const MIN_RESOLUTION: int = 3
 #region references
 var _material: ShaderMaterial = null
 
-var _lines_dirty: Dictionary[int, bool] = {}
 var _lines_counts: Dictionary[int, int] = {}
 var _lines_array_meshes: Dictionary[int, ArrayMesh] = {}
 var _lines_multimeshes: Dictionary[int, MultiMesh] = {}
 var _lines_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
 
-var _fill_dirty: Dictionary[int, bool] = {}
 var _fill_counts: Dictionary[int, int] = {}
 var _fill_array_meshes: Dictionary[int, ArrayMesh] = {}
 var _fill_multimeshes: Dictionary[int, MultiMesh] = {}
@@ -34,8 +32,6 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 		if !_lines_array_meshes.has(resolution):
 			_create_lines_resolution(resolution)
 		
-		_lines_dirty[resolution] = false
-		
 		var lines_multimesh := _lines_multimeshes[resolution]
 		var lines_count := _lines_counts[resolution]
 		
@@ -51,8 +47,6 @@ func draw(center: Vector3, height: float, top_radius: float, bottom_radius: floa
 	if fill_color.a > 0.0:
 		if !_fill_array_meshes.has(resolution):
 			_create_fill_resolution(resolution)
-		
-		_fill_dirty[resolution] = false
 		
 		var fill_multimesh := _fill_multimeshes[resolution]
 		var fill_count := _fill_counts[resolution]
@@ -74,31 +68,27 @@ func finalize() -> void:
 		_fill_multimeshes[resolution].visible_instance_count = _fill_counts[resolution]
 
 func reset() -> void:
-	for resolution: int in _lines_dirty.keys():
-		if _lines_dirty[resolution]:
+	for resolution: int in _lines_counts.keys():
+		if _lines_counts[resolution] == 0:
 			_lines_multi_mesh_instances[resolution].free()
 			
-			_lines_dirty.erase(resolution)
 			_lines_counts.erase(resolution)
 			_lines_array_meshes.erase(resolution)
 			_lines_multimeshes.erase(resolution)
 			_lines_multi_mesh_instances.erase(resolution)
 		else:
 			_lines_counts[resolution] = 0
-			_lines_dirty[resolution] = true
 	
-	for resolution: int in _fill_dirty.keys():
-		if _fill_dirty[resolution]:
+	for resolution: int in _fill_counts.keys():
+		if _fill_counts[resolution] == 0:
 			_fill_multi_mesh_instances[resolution].free()
 			
-			_fill_dirty.erase(resolution)
 			_fill_counts.erase(resolution)
 			_fill_array_meshes.erase(resolution)
 			_fill_multimeshes.erase(resolution)
 			_fill_multi_mesh_instances.erase(resolution)
 		else:
 			_fill_counts[resolution] = 0
-			_fill_dirty[resolution] = true
 
 #region private_functions
 func _create_lines_resolution(resolution: int) -> void:
