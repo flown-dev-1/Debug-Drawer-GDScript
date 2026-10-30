@@ -27,11 +27,11 @@ func _enter_tree() -> void:
 		_fill_multi_mesh_instance = _create_multi_mesh_instance(_fill_multimesh)
 
 #region public_functions
-func draw(min_point: Vector3, size: Vector3, line_color: Color, fill_color: Color) -> void:
+func draw(center: Vector3, size: Vector3, rotation: Quaternion, line_color: Color, fill_color: Color) -> void:
 	if size == Vector3.ZERO:
 		return
 	
-	var instance_transform := Transform3D(Basis.from_scale(size), min_point)
+	var instance_transform := Transform3D(Basis(rotation).scaled_local(size), center)
 	
 	if line_color.a > 0.0:
 		if _lines_count >= _max_shape_instances:
@@ -101,14 +101,14 @@ func _create_lines_cube() -> MeshData:
 	mesh_data.resize_for_vertices(8)
 	mesh_data.resize_for_lines(12)
 	
-	mesh_data.set_vertex(0, Vector3(0.0, 0.0, 0.0))
-	mesh_data.set_vertex(1, Vector3(1.0, 0.0, 0.0))
-	mesh_data.set_vertex(2, Vector3(0.0, 1.0, 0.0))
-	mesh_data.set_vertex(3, Vector3(1.0, 1.0, 0.0))
-	mesh_data.set_vertex(4, Vector3(0.0, 0.0, 1.0))
-	mesh_data.set_vertex(5, Vector3(1.0, 0.0, 1.0))
-	mesh_data.set_vertex(6, Vector3(0.0, 1.0, 1.0))
-	mesh_data.set_vertex(7, Vector3(1.0, 1.0, 1.0))
+	mesh_data.set_vertex(0, Vector3(-0.5, -0.5, -0.5))
+	mesh_data.set_vertex(1, Vector3( 0.5, -0.5, -0.5))
+	mesh_data.set_vertex(2, Vector3(-0.5,  0.5, -0.5))
+	mesh_data.set_vertex(3, Vector3( 0.5,  0.5, -0.5))
+	mesh_data.set_vertex(4, Vector3(-0.5, -0.5,  0.5))
+	mesh_data.set_vertex(5, Vector3( 0.5, -0.5,  0.5))
+	mesh_data.set_vertex(6, Vector3(-0.5,  0.5,  0.5))
+	mesh_data.set_vertex(7, Vector3( 0.5,  0.5,  0.5))
 	
 	mesh_data.set_line_indices(0 , 0, 1)
 	mesh_data.set_line_indices(1 , 0, 2)
@@ -130,14 +130,14 @@ func _create_fill_cube() -> MeshData:
 	mesh_data.resize_for_vertices(8)
 	mesh_data.resize_for_triangles(6 * 2)
 	
-	mesh_data.set_vertex(0, Vector3(0.0, 0.0, 0.0))
-	mesh_data.set_vertex(1, Vector3(1.0, 0.0, 0.0))
-	mesh_data.set_vertex(2, Vector3(0.0, 1.0, 0.0))
-	mesh_data.set_vertex(3, Vector3(1.0, 1.0, 0.0))
-	mesh_data.set_vertex(4, Vector3(0.0, 0.0, 1.0))
-	mesh_data.set_vertex(5, Vector3(1.0, 0.0, 1.0))
-	mesh_data.set_vertex(6, Vector3(0.0, 1.0, 1.0))
-	mesh_data.set_vertex(7, Vector3(1.0, 1.0, 1.0))
+	mesh_data.set_vertex(0, Vector3(-0.5, -0.5, -0.5))
+	mesh_data.set_vertex(1, Vector3( 0.5, -0.5, -0.5))
+	mesh_data.set_vertex(2, Vector3(-0.5,  0.5, -0.5))
+	mesh_data.set_vertex(3, Vector3( 0.5,  0.5, -0.5))
+	mesh_data.set_vertex(4, Vector3(-0.5, -0.5,  0.5))
+	mesh_data.set_vertex(5, Vector3( 0.5, -0.5,  0.5))
+	mesh_data.set_vertex(6, Vector3(-0.5,  0.5,  0.5))
+	mesh_data.set_vertex(7, Vector3( 0.5,  0.5,  0.5))
 	
 	_create_fill_face(mesh_data, 0, 0, 1, 2, 3)
 	_create_fill_face(mesh_data, 1, 5, 4, 7, 6)

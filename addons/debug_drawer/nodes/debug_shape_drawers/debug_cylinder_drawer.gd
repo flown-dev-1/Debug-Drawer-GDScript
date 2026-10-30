@@ -21,13 +21,13 @@ var _fill_multimeshes: Dictionary[int, MultiMesh] = {}
 var _fill_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
 
 #region public_functions
-func draw(center: Vector3, height: float, top_radius: float, bottom_radius: float, resolution: int, line_color: Color, fill_color: Color) -> void:
+func draw(center: Vector3, height: float, top_radius: float, bottom_radius: float, rotation: Quaternion, resolution: int, line_color: Color, fill_color: Color) -> void:
 	if height == 0.0 || (top_radius == 0.0 && bottom_radius == 0.0):
 		return
 	
 	resolution = maxi(resolution, MIN_RESOLUTION)
 
-	var instance_transform := Transform3D(Basis.from_scale(Vector3(1.0, height, 1.0)), center)
+	var instance_transform := Transform3D(Basis(rotation).scaled_local(Vector3(1.0, height, 1.0)), center)
 	var instance_custom_data := Color(top_radius, bottom_radius, 0.0, 0.0)
 	
 	if line_color.a > 0.0:
