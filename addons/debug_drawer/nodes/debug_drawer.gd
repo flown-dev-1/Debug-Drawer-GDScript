@@ -9,6 +9,7 @@ var _cube_drawer: DebugCubeDrawer = null
 var _line_drawer: DebugLineDrawer = null
 var _sphere_drawer: DebugSphereDrawer = null
 var _cylinder_drawer: DebugCylinderDrawer = null
+var _text_drawer: DebugTextDrawer = null
 
 #region node_events
 func _enter_tree() -> void:
@@ -30,9 +31,12 @@ func _enter_tree() -> void:
 		_cylinder_drawer = DebugCylinderDrawer.new()
 		add_child(_cylinder_drawer, false, Node.INTERNAL_MODE_FRONT)
 	
+	if _text_drawer == null:
+		_text_drawer = DebugTextDrawer.new()
+		add_child(_text_drawer, false, Node.INTERNAL_MODE_FRONT)
+	
 	process_priority = -1000
-
-func _ready() -> void:
+	
 	if global:
 		GlobalDebugDrawer._register_debug_drawer(self)
 
@@ -44,6 +48,7 @@ func _process(_delta: float) -> void:
 	_line_drawer.reset()
 	_sphere_drawer.reset()
 	_cylinder_drawer.reset()
+	_text_drawer.reset()
 
 func _late_process(_delta: float) -> void:
 	_cube_drawer.finalize()
@@ -84,3 +89,6 @@ func draw_cylinder(center: Vector3, height: float, top_radius: float, bottom_rad
 
 func draw_cylinder_rotated(center: Vector3, height: float, top_radius: float, bottom_radius: float, rotation: Quaternion, resolution: int, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
 	_cylinder_drawer.draw(center, height, top_radius, bottom_radius, rotation, resolution, line_color, fill_color)
+
+func draw_text(string: String, position: Vector3, font_size: int = 32, horizontal_alignment: HorizontalAlignment = HorizontalAlignment.HORIZONTAL_ALIGNMENT_CENTER, vertical_alignment: VerticalAlignment = VerticalAlignment.VERTICAL_ALIGNMENT_CENTER) -> void:
+	_text_drawer.draw(string, position, font_size, horizontal_alignment, vertical_alignment)

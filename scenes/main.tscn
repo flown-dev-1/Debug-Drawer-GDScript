@@ -5,7 +5,7 @@
 
 [node name="Main" type="Node3D" unique_id=866237705]
 
-[node name="DebugDrawer" type="Node3D" parent="." unique_id=2052134988]
+[node name="DebugDrawer" type="Node3D" parent="." unique_id=1839190388]
 process_priority = -1000
 script = ExtResource("1_0wfyh")
 metadata/_custom_type_script = "uid://b5762taikh7dm"
@@ -15,3 +15,5 @@ script = ExtResource("1_o5qli")
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1286949761]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 4.2724586)
+
+[node name="Label3D" type="Label3D" parent="." unique_id=1618083554]

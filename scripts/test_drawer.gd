@@ -26,6 +26,8 @@ func _process(_delta: float) -> void:
 		Vector3(4.0, 2.0, -7.0)
 	]), Color.BLUE_VIOLET)
 	
+	GlobalDebugDrawer.draw_text("Hello\nWorld", Vector3(0.0, 3.0, 0.0), 64)
+	
 	if !Engine.is_editor_hint():
 		if Input.is_action_just_pressed("toggle_stress_test"):
 			_stress_testing = !_stress_testing

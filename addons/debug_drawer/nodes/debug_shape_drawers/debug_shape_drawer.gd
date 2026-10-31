@@ -1,15 +1,5 @@
 @tool
-class_name DebugShapeDrawer extends Node3D
-
-#region constants
-const TOO_MANY_SHAPES_WARNING: String = "[Debug Drawer] Attempted to draw too many shapes in one frame. The limit is set to %d, try increasing it in addons/debug_drawer/max_shape_instances"
-
-#region identity
-var _max_shape_instances: int
-
-#region node_events
-func _enter_tree() -> void:
-	_max_shape_instances = DebugDrawerSettings.get_max_shape_instances()
+class_name DebugShapeDrawer extends DebugElementDrawer
 
 #region private_functions
 func _create_multi_mesh_instance(multimesh: MultiMesh) -> MultiMeshInstance3D:
@@ -56,6 +46,3 @@ func _create_shader_material(shader: Shader) -> ShaderMaterial:
 	material.shader = shader
 	
 	return material
-
-func _push_too_many_shapes_warning() -> void:
-	push_warning(TOO_MANY_SHAPES_WARNING % _max_shape_instances)
