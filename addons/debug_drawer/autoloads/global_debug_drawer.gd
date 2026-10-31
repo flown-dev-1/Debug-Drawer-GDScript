@@ -65,12 +65,12 @@ func draw_cylinder_rotated(center: Vector3, height: float, top_radius: float, bo
 	
 	_target_debug_drawer.draw_cylinder_rotated(center, height, top_radius, bottom_radius, rotation, resolution, line_color, fill_color)
 
-func draw_text(string: String, position: Vector3, font_size: int = 32, horizontal_alignment: HorizontalAlignment = HorizontalAlignment.HORIZONTAL_ALIGNMENT_CENTER, vertical_alignment: VerticalAlignment = VerticalAlignment.VERTICAL_ALIGNMENT_CENTER) -> void:
+func draw_text(string: String, position: Vector3, text_color: Color = Color.WHITE, outline_color: Color = Color.BLACK, font_size: int = 32, horizontal_alignment: HorizontalAlignment = HorizontalAlignment.HORIZONTAL_ALIGNMENT_CENTER, vertical_alignment: VerticalAlignment = VerticalAlignment.VERTICAL_ALIGNMENT_CENTER) -> void:
 	if _target_debug_drawer == null:
 		push_error(NO_GLOBAL_DRAWER_ERROR)
 		return
 	
-	_target_debug_drawer.draw_text(string, position, font_size, horizontal_alignment, vertical_alignment)
+	_target_debug_drawer.draw_text(string, position, text_color, outline_color, font_size, horizontal_alignment, vertical_alignment)
 
 #region internal_functions
 func _register_debug_drawer(debug_drawer: DebugDrawer) -> void:

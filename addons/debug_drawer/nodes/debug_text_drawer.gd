@@ -13,8 +13,8 @@ func _enter_tree() -> void:
 	_labels.resize(_max_shape_instances)
 
 #region public_functions
-func draw(string: String, position: Vector3, font_size: int, horizontal_alignment: HorizontalAlignment, vertical_alignment: VerticalAlignment) -> void:
-	if string.is_empty():
+func draw(string: String, position: Vector3, text_color: Color, outline_color: Color, font_size: int, horizontal_alignment: HorizontalAlignment, vertical_alignment: VerticalAlignment) -> void:
+	if string.is_empty() || font_size <= 0 || (text_color.a <= 0.0 && outline_color.a <= 0.0):
 		return
 	
 	if _count >= _max_shape_instances:
@@ -30,10 +30,13 @@ func draw(string: String, position: Vector3, font_size: int, horizontal_alignmen
 	
 	if label.text != string:
 		label.text = string
+	
 	label.position = position
 	label.horizontal_alignment = horizontal_alignment
 	label.vertical_alignment = vertical_alignment
 	label.font_size = font_size
+	label.modulate = text_color
+	label.outline_modulate = outline_color
 	
 	_count += 1
 
