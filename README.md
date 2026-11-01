@@ -26,7 +26,7 @@ You can install the addon manually or through the asset store.
 
 To be able to draw shapes, you must first add a `DebugDrawer` node to your scene tree. This node is required because your shapes need to exist somewhere in the scene tree and depending on your setup the specific location might be important. If you are unsure where to put this node, I recommend adding it as a child of your root 3D node.
 
-You will notice that the `DebugDrawer` node has a `global` toggle. The effects of this setting will be covered in detail in [Multiple Debug Drawers](TODO), for now just know that you should keep it turned on and that you should not add more than one `DebugDrawer` to your scene tree.
+You will notice that the `DebugDrawer` node has a `global` toggle. The effects of this setting will be covered in detail in [Multiple Debug Drawers](https://github.com/flown-dev-1/DebugDrawer#multiple-debug-drawers), for now just know that you should keep it turned on and that you should not add more than one `DebugDrawer` to your scene tree.
 
 # Drawing Shapes
 
