@@ -1,4 +1,5 @@
 @tool
+@icon("res://addons/debug_drawer/icons/drawer.svg")
 class_name DebugDrawer extends Node3D
 
 #region exports
