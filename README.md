@@ -32,6 +32,9 @@ You will notice that the `DebugDrawer` node has a `global` toggle. The effects o
 
 Debug Drawer uses an immediate-mode style API for drawing its shapes. This means that all of your drawing functions should be placed in `_process` and called on every frame that you want the shape to be visible.
 
+> [!WARNING]
+> Because your debug shapes are added as a child of the `DebugDrawer` node, they will be impacted by its transform. It is recommended to keep the `DebugDrawer` at the world origin.
+
 With that, drawing a cube is as easy as calling `draw_cube` on `GlobalDebugDrawer`.
 
 ```gdscript
