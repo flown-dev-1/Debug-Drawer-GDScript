@@ -2,8 +2,22 @@
 @icon("res://addons/debug_drawer/icons/drawer.svg")
 class_name DebugDrawer extends Node3D
 
+#region constants
+const MULTIPLE_DRAWERS_WARNING: String = "Multiple global debug drawers defined. Undefined behaviour."
+
 #region exports
-@export var global: bool = true
+@export var global: bool = true:
+	set(value):
+		if value == global:
+			return
+		
+		global = value
+		
+		if global:
+			GlobalDebugDrawer._register_debug_drawer(self)
+		else:
+			GlobalDebugDrawer._unregister_scene_manager(self)
+			update_configuration_warnings()
 
 #region references
 var _cube_drawer: DebugCubeDrawer = null
@@ -56,6 +70,14 @@ func _late_process(_delta: float) -> void:
 	_line_drawer.finalize()
 	_sphere_drawer.finalize()
 	_cylinder_drawer.finalize()
+
+func _get_configuration_warnings() -> PackedStringArray:
+	var warnings = PackedStringArray()
+	
+	if global && GlobalDebugDrawer._are_drawers_queued():
+		warnings.push_back(MULTIPLE_DRAWERS_WARNING)
+	
+	return warnings
 
 #region public_functions
 func draw_cube(center: Vector3, size: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:

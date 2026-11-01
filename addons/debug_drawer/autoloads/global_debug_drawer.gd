@@ -3,10 +3,10 @@ extends Node
 
 #region constants
 const NO_GLOBAL_DRAWER_ERROR: String = "[Debug Drawer] Attempting to perform a global debug drawer operation with no global debug drawer"
-const RE_REGISTER_DRAWER_ERROR: String = "[Debug Drawer] Multiple global debug drawers defined. Undefined behaviour."
 
 #region references
 var _target_debug_drawer: DebugDrawer = null
+var _target_debug_drawer_queue: Array[DebugDrawer] = []
 
 #region public_functions
 func draw_cube(center: Vector3, size: Vector3, line_color: Color, fill_color: Color = Color(0.0, 0.0, 0.0, 0.0)) -> void:
@@ -75,13 +75,35 @@ func draw_text(string: String, position: Vector3, text_color: Color = Color.WHIT
 #region internal_functions
 func _register_debug_drawer(debug_drawer: DebugDrawer) -> void:
 	if _target_debug_drawer != null:
-		push_warning(RE_REGISTER_DRAWER_ERROR)
+		if !_target_debug_drawer_queue.has(debug_drawer):
+			_target_debug_drawer_queue.push_back(debug_drawer)
+			
+			_update_configuration_warnings()
+		
 		return
 	
 	_target_debug_drawer = debug_drawer
 
 func _unregister_scene_manager(debug_drawer: DebugDrawer) -> void:
-	if _target_debug_drawer != debug_drawer:
-		return
+	if _target_debug_drawer == debug_drawer:
+		if _target_debug_drawer_queue.size() > 0:
+			_target_debug_drawer = _target_debug_drawer_queue[0]
+			_target_debug_drawer_queue.remove_at(0)
+			
+			_update_configuration_warnings()
+		else:
+			_target_debug_drawer = null
+	elif _target_debug_drawer_queue.has(debug_drawer):
+		_target_debug_drawer_queue.erase(debug_drawer)
+		
+		_update_configuration_warnings()
+
+func _are_drawers_queued() -> bool:
+	return _target_debug_drawer_queue.size() > 0
+
+#region private_functions
+func _update_configuration_warnings() -> void:
+	_target_debug_drawer.update_configuration_warnings()
 	
-	_target_debug_drawer = null
+	for debug_drawer: DebugDrawer in _target_debug_drawer_queue:
+		debug_drawer.update_configuration_warnings()
