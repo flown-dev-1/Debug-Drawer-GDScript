@@ -2,17 +2,18 @@
 class_name DebugCylinderDrawer extends DebugShapeDrawer
 
 #region constants
-const SHADER: Shader = preload("res://addons/debug_drawer/shaders/cylinder.gdshader")
+const LINES_SHADER: Shader = preload("res://addons/debug_drawer/shaders/cylinder_lines.gdshader")
+const FILL_SHADER: Shader = preload("res://addons/debug_drawer/shaders/cylinder_fill.gdshader")
 const MIN_RESOLUTION: int = 3
 
 #region references
-var _material: ShaderMaterial = null
-
+var _lines_material: ShaderMaterial = null
 var _lines_counts: Dictionary[int, int] = {}
 var _lines_array_meshes: Dictionary[int, ArrayMesh] = {}
 var _lines_multimeshes: Dictionary[int, MultiMesh] = {}
 var _lines_multi_mesh_instances: Dictionary[int, MultiMeshInstance3D] = {}
 
+var _fill_material: ShaderMaterial = null
 var _fill_counts: Dictionary[int, int] = {}
 var _fill_array_meshes: Dictionary[int, ArrayMesh] = {}
 var _fill_multimeshes: Dictionary[int, MultiMesh] = {}
@@ -123,10 +124,10 @@ func _create_lines_array_mesh(resolution: int) -> ArrayMesh:
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_LINES, arrays)
 	
-	if _material == null:
-		_material = _create_shader_material(SHADER)
+	if _lines_material == null:
+		_lines_material = _create_shader_material(LINES_SHADER)
 	
-	array_mesh.surface_set_material(0, _material)
+	array_mesh.surface_set_material(0, _lines_material)
 	
 	return array_mesh
 
@@ -142,10 +143,10 @@ func _create_fill_array_mesh(resolution: int) -> ArrayMesh:
 	
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
 	
-	if _material == null:
-		_material = _create_shader_material(SHADER)
+	if _fill_material == null:
+		_fill_material = _create_shader_material(FILL_SHADER)
 	
-	array_mesh.surface_set_material(0, _material)
+	array_mesh.surface_set_material(0, _fill_material)
 	
 	return array_mesh
 
