@@ -1,4 +1,4 @@
-# Debug Drawer
+# Debug Drawer (GDScript)
 ![Logo](https://github.com/flown-dev-1/DebugDrawer/blob/main/banner.png)
 
 A 3D debug shape drawer addon for Godot. It allows you to draw primitive shapes using a simple, immediate-mode style API.
