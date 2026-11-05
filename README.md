@@ -87,3 +87,8 @@ func _process(_delta: float) -> void:
 # Getting Help
 * If you are struggling with using Debug Drawer, feel free to ask for help in my [Discord server](https://flowndev.com/discord).
 * If you have found a bug or issue with the addon, please create an [issue](https://github.com/super-miner/DebugDrawer/issues).
+
+# AI Use
+AI was used to generate the sphere and cylinder drawing logic based on my square and line drawer implementations.
+
+All generated code has been thoroughly reviewed by me.
